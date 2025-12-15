@@ -71,11 +71,12 @@ function App() {
 
   return (
     <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
-      <MusicPlayer />
+
       {showApplyForm ? (
         <ApplyForm onClose={handleCloseForm} />
       ) : (
         <>
+          <MusicPlayer />
           <Hero />
           <Gallery />
         </>
