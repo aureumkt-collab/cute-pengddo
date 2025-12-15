@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Header = () => {
+const Header = ({ onApplyClick }) => {
     return (
         <header style={{
             padding: '16px 0',
@@ -26,8 +26,11 @@ const Header = () => {
                     background: 'var(--gradient-primary)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                }}>
+                    backgroundClip: 'text',
+                    cursor: 'pointer'
+                }}
+                    onClick={() => window.location.reload()}
+                >
                     <div style={{
                         width: '40px',
                         height: '40px',
@@ -55,28 +58,31 @@ const Header = () => {
                         listStyle: 'none'
                     }}>
                         <li>
-                            <a href="#" style={{
-                                fontSize: '0.95rem',
-                                fontWeight: '500',
-                                color: 'var(--color-text)',
-                                transition: 'color 0.3s ease'
-                            }}>홈</a>
-                        </li>
-                        <li>
-                            <a href="#gallery" style={{
-                                fontSize: '0.95rem',
-                                fontWeight: '500',
-                                color: 'var(--color-text)',
-                                transition: 'color 0.3s ease'
-                            }}>갤러리</a>
-                        </li>
-                        <li>
-                            <a href="#about" style={{
-                                fontSize: '0.95rem',
-                                fontWeight: '500',
-                                color: 'var(--color-text)',
-                                transition: 'color 0.3s ease'
-                            }}>소개</a>
+                            <button
+                                onClick={onApplyClick}
+                                style={{
+                                    fontSize: '0.95rem',
+                                    fontWeight: '500',
+                                    color: 'var(--color-text)',
+                                    background: 'var(--gradient-primary)',
+                                    border: 'none',
+                                    padding: '10px 20px',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
+                                }}
+                                onMouseOver={(e) => {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 6px 20px rgba(139, 92, 246, 0.4)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.3)';
+                                }}
+                            >
+                                🐧 귀염부서 지원
+                            </button>
                         </li>
                     </ul>
                 </nav>
