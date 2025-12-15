@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 const ApplyModal = ({ onClose, onAgree }) => {
+    const [showGiftModal, setShowGiftModal] = useState(false);
+
     useEffect(() => {
         document.body.style.overflow = 'hidden';
         return () => {
@@ -100,6 +102,34 @@ const ApplyModal = ({ onClose, onAgree }) => {
                 }}>
                     🐧 귀염부서 지원하기
                 </h2>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowGiftModal(true);
+                    }}
+                    style={{
+                        display: 'block',
+                        margin: '0 auto 16px',
+                        padding: '8px 16px',
+                        background: 'transparent',
+                        border: '1px dashed var(--color-primary)',
+                        borderRadius: '20px',
+                        color: 'var(--color-primary)',
+                        fontSize: '0.9rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.background = 'var(--color-primary)';
+                        e.target.style.color = 'white';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.background = 'transparent';
+                        e.target.style.color = 'var(--color-primary)';
+                    }}
+                >
+                    🎁 입사선물 확인하기
+                </button>
                 <p style={{
                     textAlign: 'center',
                     color: 'var(--color-text-muted)',
@@ -228,6 +258,92 @@ const ApplyModal = ({ onClose, onAgree }) => {
                     </button>
                 </div>
             </div>
+
+            {/* Gift Image Modal */}
+            {showGiftModal && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'rgba(0, 0, 0, 0.8)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1100,
+                        animation: 'fadeIn 0.3s ease-out'
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowGiftModal(false);
+                    }}
+                >
+                    <div
+                        style={{
+                            position: 'relative',
+                            maxWidth: '90%',
+                            maxHeight: '90%',
+                            animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setShowGiftModal(false)}
+                            style={{
+                                position: 'absolute',
+                                top: '-70px',
+                                right: '-10px',
+                                background: 'rgba(255, 255, 255, 0.15)',
+                                border: '2px solid rgba(255, 255, 255, 0.3)',
+                                borderRadius: '50%',
+                                color: 'white',
+                                fontSize: '2.5rem',
+                                width: '56px',
+                                height: '56px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backdropFilter: 'blur(10px)',
+                                transition: 'all 0.3s ease',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.target.style.background = 'rgba(255, 255, 255, 0.25)';
+                                e.target.style.transform = 'scale(1.1)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.target.style.background = 'rgba(255, 255, 255, 0.15)';
+                                e.target.style.transform = 'scale(1)';
+                            }}
+                        >
+                            ×
+                        </button>
+                        <img
+                            src="/doc/goods.png"
+                            alt="입사선물"
+                            style={{
+                                maxWidth: '100%',
+                                maxHeight: '70vh',
+                                borderRadius: '16px',
+                                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+                            }}
+                        />
+                        <p style={{
+                            textAlign: 'center',
+                            color: 'white',
+                            marginTop: '16px',
+                            fontSize: '1.1rem',
+                            fontWeight: '500',
+                            textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
+                        }}>
+                            🎁 신입사원에게만 증정되는 가상 선물 입니다!!
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

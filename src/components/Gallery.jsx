@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import assets from '../assets.json';
 
 const EMOJIS = ['🐧', '💜', '✨', '💕', '🌟', '❄️', '💙', '🎀', '🦋', '🌸'];
@@ -10,11 +10,15 @@ const getImageFromURL = () => {
 };
 
 // URL에 image 파라미터 설정
-const setImageToURL = (filename) => {
+const setImageToURL = (filename, replace = false) => {
     const url = new URL(window.location.href);
     if (filename) {
         url.searchParams.set('image', filename);
-        window.history.pushState({ image: filename }, '', url.toString());
+        if (replace) {
+            window.history.replaceState({ image: filename }, '', url.toString());
+        } else {
+            window.history.pushState({ image: filename }, '', url.toString());
+        }
     } else {
         url.searchParams.delete('image');
         window.history.replaceState({}, '', url.toString());
@@ -36,6 +40,118 @@ const EmojiParticle = ({ emoji, style }) => (
 const Gallery = () => {
     const [selectedImage, setSelectedImage] = useState(() => getImageFromURL());
     const [particles, setParticles] = useState([]);
+    const [swipeOffset, setSwipeOffset] = useState(0);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [slideDirection, setSlideDirection] = useState(null);
+
+    // 스와이프 관련 ref
+    const touchStartY = useRef(0);
+    const touchCurrentY = useRef(0);
+    const isDragging = useRef(false);
+
+    // 현재 이미지 인덱스 가져오기
+    const getCurrentIndex = useCallback(() => {
+        if (!selectedImage) return -1;
+        return assets.indexOf(selectedImage);
+    }, [selectedImage]);
+
+    // 다음 이미지로 이동
+    const goToNextImage = useCallback(() => {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex < assets.length - 1) {
+            const nextImage = assets[currentIndex + 1];
+            setSlideDirection('up');
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setSelectedImage(nextImage);
+                setImageToURL(nextImage, true);
+                setSlideDirection(null);
+                setIsTransitioning(false);
+            }, 300);
+        }
+    }, [getCurrentIndex]);
+
+    // 이전 이미지로 이동
+    const goToPrevImage = useCallback(() => {
+        const currentIndex = getCurrentIndex();
+        if (currentIndex > 0) {
+            const prevImage = assets[currentIndex - 1];
+            setSlideDirection('down');
+            setIsTransitioning(true);
+            setTimeout(() => {
+                setSelectedImage(prevImage);
+                setImageToURL(prevImage, true);
+                setSlideDirection(null);
+                setIsTransitioning(false);
+            }, 300);
+        }
+    }, [getCurrentIndex]);
+
+    // 터치 시작
+    const handleTouchStart = useCallback((e) => {
+        if (isTransitioning) return;
+        touchStartY.current = e.touches[0].clientY;
+        touchCurrentY.current = e.touches[0].clientY;
+        isDragging.current = true;
+    }, [isTransitioning]);
+
+    // 터치 이동
+    const handleTouchMove = useCallback((e) => {
+        if (!isDragging.current || isTransitioning) return;
+        touchCurrentY.current = e.touches[0].clientY;
+        const diff = touchCurrentY.current - touchStartY.current;
+        // 최대 100px까지만 오프셋 허용
+        setSwipeOffset(Math.max(-100, Math.min(100, diff)));
+    }, [isTransitioning]);
+
+    // 터치 종료
+    const handleTouchEnd = useCallback(() => {
+        if (!isDragging.current || isTransitioning) return;
+        isDragging.current = false;
+        const diff = touchCurrentY.current - touchStartY.current;
+        const threshold = 50;
+
+        if (diff < -threshold) {
+            // 위로 스와이프 -> 다음 이미지
+            goToNextImage();
+        } else if (diff > threshold) {
+            // 아래로 스와이프 -> 이전 이미지
+            goToPrevImage();
+        }
+        setSwipeOffset(0);
+    }, [isTransitioning, goToNextImage, goToPrevImage]);
+
+    // 마우스 드래그 시작
+    const handleMouseDown = useCallback((e) => {
+        if (isTransitioning) return;
+        e.preventDefault();
+        touchStartY.current = e.clientY;
+        touchCurrentY.current = e.clientY;
+        isDragging.current = true;
+    }, [isTransitioning]);
+
+    // 마우스 이동
+    const handleMouseMove = useCallback((e) => {
+        if (!isDragging.current || isTransitioning) return;
+        touchCurrentY.current = e.clientY;
+        const diff = touchCurrentY.current - touchStartY.current;
+        setSwipeOffset(Math.max(-100, Math.min(100, diff)));
+    }, [isTransitioning]);
+
+    // 마우스 드래그 종료
+    const handleMouseUp = useCallback(() => {
+        if (!isDragging.current || isTransitioning) return;
+        isDragging.current = false;
+        const diff = touchCurrentY.current - touchStartY.current;
+        const threshold = 50;
+
+        if (diff < -threshold) {
+            goToNextImage();
+        } else if (diff > threshold) {
+            goToPrevImage();
+        }
+        setSwipeOffset(0);
+    }, [isTransitioning, goToNextImage, goToPrevImage]);
 
     // URL 변경 시 이미지 상태 동기화 (popstate)
     useEffect(() => {
@@ -55,6 +171,21 @@ const Gallery = () => {
             document.body.style.overflow = 'hidden';
         }
     }, []);
+
+    // 키보드 네비게이션
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (!selectedImage) return;
+            if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                goToPrevImage();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                goToNextImage();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [selectedImage, goToPrevImage, goToNextImage]);
 
     const createParticles = useCallback((e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -240,7 +371,61 @@ const Gallery = () => {
                         e.stopPropagation();
                         closeModal();
                     }}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    style={{ cursor: isDragging.current ? 'grabbing' : 'grab' }}
                 >
+                    <style>{`
+                        @keyframes slideOutUp {
+                            from { transform: translateY(0); opacity: 1; }
+                            to { transform: translateY(-100%); opacity: 0; }
+                        }
+                        @keyframes slideOutDown {
+                            from { transform: translateY(0); opacity: 1; }
+                            to { transform: translateY(100%); opacity: 0; }
+                        }
+                        .swipe-hint {
+                            position: absolute;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            color: rgba(255, 255, 255, 0.6);
+                            font-size: 0.85rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            transition: opacity 0.3s;
+                            pointer-events: none;
+                        }
+                        .swipe-hint.top {
+                            top: 20px;
+                        }
+                        .swipe-hint.bottom {
+                            bottom: 20px;
+                        }
+                        .swipe-arrow {
+                            animation: bounce 1.5s ease-in-out infinite;
+                        }
+                        .swipe-arrow.up {
+                            animation-name: bounceUp;
+                        }
+                        .swipe-arrow.down {
+                            animation-name: bounceDown;
+                        }
+                        @keyframes bounceUp {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(-5px); }
+                        }
+                        @keyframes bounceDown {
+                            0%, 100% { transform: translateY(0); }
+                            50% { transform: translateY(5px); }
+                        }
+                    `}</style>
+
                     <button
                         className="modal-close"
                         onClick={(e) => {
@@ -250,13 +435,46 @@ const Gallery = () => {
                     >
                         ✕
                     </button>
+
+                    {/* 이전 이미지 힌트 */}
+                    {getCurrentIndex() > 0 && (
+                        <div className="swipe-hint top">
+                            <span className="swipe-arrow up">↑</span>
+                            <span>스와이프하여 이전</span>
+                        </div>
+                    )}
+
+                    {/* 이미지 인덱스 표시 */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '60px',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '0.9rem',
+                        background: 'rgba(0, 0, 0, 0.5)',
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        zIndex: 1001
+                    }}>
+                        {getCurrentIndex() + 1} / {assets.length}
+                    </div>
+
                     <div
                         className="modal-content"
                         onClick={(e) => e.stopPropagation()}
+                        style={{
+                            transform: `translateY(${swipeOffset}px)`,
+                            transition: isTransitioning ? 'none' : (swipeOffset === 0 ? 'transform 0.3s ease-out' : 'none'),
+                            animation: slideDirection === 'up' ? 'slideOutUp 0.3s ease-out forwards' :
+                                slideDirection === 'down' ? 'slideOutDown 0.3s ease-out forwards' : 'none',
+                            userSelect: 'none'
+                        }}
                     >
                         <img
                             src={`/assets/${selectedImage}`}
                             alt="Gallery preview"
+                            draggable="false"
+                            style={{ pointerEvents: 'none' }}
                         />
                         <div className="modal-caption">
                             <div className="caption-content">
@@ -265,6 +483,14 @@ const Gallery = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* 다음 이미지 힌트 */}
+                    {getCurrentIndex() < assets.length - 1 && (
+                        <div className="swipe-hint bottom">
+                            <span>스와이프하여 다음</span>
+                            <span className="swipe-arrow down">↓</span>
+                        </div>
+                    )}
                 </div>
             )}
         </>
@@ -272,6 +498,7 @@ const Gallery = () => {
 };
 
 const CAPTIONS = {
+    "보자기펭뚜.jpg": "보자기에 쏙! 선물 배달 왔어요 🎁",
     "1764841628723.jpg": "오늘도 펭뚜와 함께 힐링 타임! 🐧✨",
     "20251031_230027.jpg": "귀여움이 세상을 구한다... 아마도? 💖",
     "20251019_143807.jpg": "눈이 마주친 순간, 심쿵! 😍",

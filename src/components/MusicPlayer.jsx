@@ -1,8 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// 플레이리스트 정의
+const playlist = ['/bgm.mp3', '/bgm2.mp3'];
+
 const MusicPlayer = () => {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [trackIndex, setTrackIndex] = useState(0);
     const audioRef = useRef(null);
+
+    // 곡이 끝나면 다음 곡으로 전환
+    const handleTrackEnd = () => {
+        const nextIndex = (trackIndex + 1) % playlist.length;
+        setTrackIndex(nextIndex);
+    };
+
+    // 트랙이 변경되면 자동 재생
+    useEffect(() => {
+        if (audioRef.current && isPlaying) {
+            audioRef.current.play().catch(e => console.log("Play failed", e));
+        }
+    }, [trackIndex]);
 
     useEffect(() => {
         const playAudio = async () => {
@@ -55,14 +72,31 @@ const MusicPlayer = () => {
         }
     };
 
+    const skipToNextTrack = () => {
+        const nextIndex = (trackIndex + 1) % playlist.length;
+        setTrackIndex(nextIndex);
+        setIsPlaying(true);
+    };
+
     return (
         <div style={{
             position: 'fixed',
             bottom: '24px',
-            right: '24px',
-            zIndex: 9999
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '16px'
         }}>
-            <audio ref={audioRef} src="/bgm.mp3" loop />
+            <audio
+                ref={audioRef}
+                src={playlist[trackIndex]}
+                onEnded={handleTrackEnd}
+            />
+
+            {/* Play/Pause Button */}
             <button
                 onClick={togglePlay}
                 style={{
@@ -83,7 +117,8 @@ const MusicPlayer = () => {
                         : 'rgba(31, 31, 31, 0.6)',
                     color: isPlaying ? '#F9A8D4' : '#9CA3AF',
                     cursor: 'pointer',
-                    animation: isPlaying ? 'glow 2s ease-in-out infinite' : 'none'
+                    animation: isPlaying ? 'glow 2s ease-in-out infinite' : 'none',
+                    zIndex: 2
                 }}
                 onMouseOver={(e) => {
                     e.currentTarget.style.transform = 'scale(1.1)';
@@ -126,6 +161,48 @@ const MusicPlayer = () => {
                     </svg>
                 )}
             </button>
+
+            {/* Next Track Button - Only visible when playing */}
+            {isPlaying && (
+                <button
+                    onClick={skipToNextTrack}
+                    style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        backdropFilter: 'blur(12px)',
+                        border: '2px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.3s ease',
+                        background: 'rgba(31, 31, 31, 0.6)',
+                        color: '#9CA3AF',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        left: 'calc(100% - 10px)', // Position to the right of the play button
+                        marginLeft: '16px',
+                        zIndex: 1
+                    }}
+                    onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.1)';
+                        e.currentTarget.style.color = '#F9A8D4';
+                        e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.5)';
+                    }}
+                    onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.color = '#9CA3AF';
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                    }}
+                    aria-label="다음 곡 재생"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '24px', height: '24px' }}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            )}
+
             <style>{`
                 @keyframes music-bar {
                     0%, 100% { height: 8px; }

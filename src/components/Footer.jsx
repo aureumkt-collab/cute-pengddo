@@ -6,7 +6,7 @@ const Footer = () => {
             background: 'var(--color-background)',
             borderTop: '1px solid var(--color-border)',
             color: 'var(--color-text-muted)',
-            padding: '40px 0',
+            padding: '40px 0 120px',
             textAlign: 'center',
             marginTop: 'auto'
         }}>
