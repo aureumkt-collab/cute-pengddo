@@ -138,7 +138,7 @@ const ApplyForm = ({ onClose }) => {
                         color: 'var(--color-text-muted)',
                         fontSize: '1rem'
                     }}>
-                        펭뚜와 함께할 당신에 대해 알려주세요
+                        펭뚜와 함께할 당신에 대해 알려주세요!
                     </p>
                 </div>
 
