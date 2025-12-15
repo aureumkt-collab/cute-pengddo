@@ -1,33 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Layout from './components/Layout';
 import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import ApplyModal from './components/ApplyModal';
 import ApplyForm from './components/ApplyForm';
 
+// URL에서 view 파라미터 읽기
+const getViewFromURL = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('view');
+};
+
+// URL에 view 파라미터 설정
+const setViewToURL = (view, replace = false) => {
+  const url = new URL(window.location.href);
+  if (view) {
+    url.searchParams.set('view', view);
+  } else {
+    url.searchParams.delete('view');
+  }
+
+  if (replace) {
+    window.history.replaceState({ view }, '', url.toString());
+  } else {
+    window.history.pushState({ view }, '', url.toString());
+  }
+};
+
+import MusicPlayer from './components/MusicPlayer';
+
 function App() {
-  const [showApplyModal, setShowApplyModal] = useState(false);
-  const [showApplyForm, setShowApplyForm] = useState(false);
+  const [currentView, setCurrentView] = useState(() => getViewFromURL());
 
-  const handleApplyClick = () => {
-    setShowApplyModal(true);
-  };
+  // popstate 이벤트로 뒤로가기/앞으로가기 처리
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentView(getViewFromURL());
+      document.body.style.overflow = 'auto';
+    };
 
-  const handleAgreeAndProceed = () => {
-    setShowApplyModal(false);
-    setShowApplyForm(true);
-  };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
-  const handleCloseModal = () => {
-    setShowApplyModal(false);
-  };
+  // 지원하기 버튼 클릭 - 약관 모달 열기
+  const handleApplyClick = useCallback(() => {
+    setViewToURL('apply-modal');
+    setCurrentView('apply-modal');
+  }, []);
 
-  const handleCloseForm = () => {
-    setShowApplyForm(false);
-  };
+  // 약관 동의 후 지원서 폼으로 이동
+  const handleAgreeAndProceed = useCallback(() => {
+    setViewToURL('apply-form');
+    setCurrentView('apply-form');
+  }, []);
+
+  // 모달 닫기 - 뒤로가기
+  const handleCloseModal = useCallback(() => {
+    window.history.back();
+  }, []);
+
+  // 폼 닫기 - 메인으로 돌아가기
+  const handleCloseForm = useCallback(() => {
+    setViewToURL(null, true);
+    setCurrentView(null);
+  }, []);
+
+  const showApplyModal = currentView === 'apply-modal';
+  const showApplyForm = currentView === 'apply-form';
 
   return (
-    <Layout onApplyClick={handleApplyClick}>
+    <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
+      <MusicPlayer />
       {showApplyForm ? (
         <ApplyForm onClose={handleCloseForm} />
       ) : (

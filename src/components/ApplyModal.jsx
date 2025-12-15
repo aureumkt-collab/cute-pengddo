@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const ApplyModal = ({ onClose, onAgree }) => {
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, []);
     const [agreements, setAgreements] = useState({
         terms1: false,
         terms2: false,
@@ -57,7 +63,7 @@ const ApplyModal = ({ onClose, onAgree }) => {
             left: 0,
             width: '100%',
             height: '100%',
-            background: 'rgba(0, 0, 0, 0.9)',
+            background: 'rgba(0, 0, 0, 0.4)',
             backdropFilter: 'blur(10px)',
             display: 'flex',
             justifyContent: 'center',
@@ -72,10 +78,10 @@ const ApplyModal = ({ onClose, onAgree }) => {
                 style={{
                     background: 'var(--color-surface)',
                     borderRadius: '20px',
-                    padding: '40px',
+                    padding: '30px',
                     maxWidth: '600px',
                     width: '100%',
-                    maxHeight: '85vh',
+                    maxHeight: '95vh',
                     overflowY: 'auto',
                     border: '1px solid var(--color-border)',
                     animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
@@ -97,7 +103,7 @@ const ApplyModal = ({ onClose, onAgree }) => {
                 <p style={{
                     textAlign: 'center',
                     color: 'var(--color-text-muted)',
-                    marginBottom: '32px',
+                    marginBottom: '20px',
                     fontSize: '0.95rem'
                 }}>
                     아래 약관에 동의하시면 귀염부서의 일원이 될 수 있습니다
@@ -112,7 +118,7 @@ const ApplyModal = ({ onClose, onAgree }) => {
                         padding: '16px',
                         background: 'var(--color-surface-light)',
                         borderRadius: '12px',
-                        marginBottom: '20px',
+                        marginBottom: '16px',
                         cursor: 'pointer',
                         border: allAgreed ? '2px solid var(--color-primary)' : '2px solid var(--color-border)',
                         transition: 'all 0.3s ease'
@@ -139,12 +145,12 @@ const ApplyModal = ({ onClose, onAgree }) => {
                 </div>
 
                 {/* Individual Agreements */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
                     {agreementItems.map((item) => (
                         <div
                             key={item.key}
                             style={{
-                                padding: '16px',
+                                padding: '12px',
                                 background: 'var(--color-background)',
                                 borderRadius: '12px',
                                 border: agreements[item.key] ? '1px solid var(--color-primary)' : '1px solid var(--color-border)',

@@ -1,4 +1,5 @@
 import React from 'react';
+import BubbleParticles from './BubbleParticles';
 
 const Hero = () => {
     return (
@@ -9,6 +10,9 @@ const Hero = () => {
             position: 'relative',
             overflow: 'hidden'
         }}>
+            {/* Bubble Particles Background */}
+            <BubbleParticles />
+
             {/* Background glow effects */}
             <div style={{
                 position: 'absolute',

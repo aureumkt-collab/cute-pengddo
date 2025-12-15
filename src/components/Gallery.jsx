@@ -1,7 +1,25 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import assets from '../assets.json';
 
 const EMOJIS = ['🐧', '💜', '✨', '💕', '🌟', '❄️', '💙', '🎀', '🦋', '🌸'];
+
+// URL에서 image 파라미터 읽기
+const getImageFromURL = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('image');
+};
+
+// URL에 image 파라미터 설정
+const setImageToURL = (filename) => {
+    const url = new URL(window.location.href);
+    if (filename) {
+        url.searchParams.set('image', filename);
+        window.history.pushState({ image: filename }, '', url.toString());
+    } else {
+        url.searchParams.delete('image');
+        window.history.replaceState({}, '', url.toString());
+    }
+};
 
 const EmojiParticle = ({ emoji, style }) => (
     <div style={{
@@ -16,8 +34,27 @@ const EmojiParticle = ({ emoji, style }) => (
 );
 
 const Gallery = () => {
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(() => getImageFromURL());
     const [particles, setParticles] = useState([]);
+
+    // URL 변경 시 이미지 상태 동기화 (popstate)
+    useEffect(() => {
+        const handlePopState = () => {
+            const imageFromURL = getImageFromURL();
+            setSelectedImage(imageFromURL);
+            document.body.style.overflow = imageFromURL ? 'hidden' : 'auto';
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    // 초기 URL에 이미지가 있으면 body overflow 설정
+    useEffect(() => {
+        if (selectedImage) {
+            document.body.style.overflow = 'hidden';
+        }
+    }, []);
 
     const createParticles = useCallback((e) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -55,6 +92,7 @@ const Gallery = () => {
         // Delay modal opening slightly for effect
         setTimeout(() => {
             setSelectedImage(filename);
+            setImageToURL(filename);
             document.body.style.overflow = 'hidden';
         }, 50);
     };
@@ -62,6 +100,8 @@ const Gallery = () => {
     const closeModal = () => {
         setSelectedImage(null);
         document.body.style.overflow = 'auto';
+        // 뒤로가기로 URL 복원
+        window.history.back();
     };
 
     return (
@@ -132,7 +172,7 @@ const Gallery = () => {
                         color: 'var(--color-text-muted)',
                         marginBottom: '48px'
                     }}>
-                        클릭하여 크게 보기
+                        클릭하여 귀여움 극대화
                     </p>
 
                     <div style={{
@@ -196,11 +236,17 @@ const Gallery = () => {
             {selectedImage && (
                 <div
                     className="modal-overlay"
-                    onClick={closeModal}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        closeModal();
+                    }}
                 >
                     <button
                         className="modal-close"
-                        onClick={closeModal}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            closeModal();
+                        }}
                     >
                         ✕
                     </button>
@@ -212,11 +258,37 @@ const Gallery = () => {
                             src={`/assets/${selectedImage}`}
                             alt="Gallery preview"
                         />
+                        <div className="modal-caption">
+                            <div className="caption-content">
+                                <span className="caption-icon">🐧</span>
+                                <p>{CAPTIONS[selectedImage] || "귀여움이 세상을 구한다! ✨"}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
         </>
     );
+};
+
+const CAPTIONS = {
+    "1764841628723.jpg": "오늘도 펭뚜와 함께 힐링 타임! 🐧✨",
+    "20251031_230027.jpg": "귀여움이 세상을 구한다... 아마도? 💖",
+    "20251019_143807.jpg": "눈이 마주친 순간, 심쿵! 😍",
+    "20251019_143009.jpg": "펭뚜의 하루는 오늘도 평화로워요 🌸",
+    "20250915_115627.jpg": "작고 소중한 나의 친구 🎀",
+    "20250628_112253.jpg": "어디서 타는 냄새 안 나요? 내 마음이 불타고 있잖아요 🔥💕",
+    "20250513_072019.jpg": "너에게 빠져드는 시간, 3초 전! ⏰💘",
+    "20250412_095919.jpg": "반짝반짝 빛나는 펭뚜의 매력 ✨",
+    "20250302_145435.jpg": "이 구역의 귀여움 대장은 나야 나! 😎🐧",
+    "20250215_133336.jpg": "사랑스러움 한도 초과! 삐- 삐- 🚨💗",
+    "20250127_183440.jpg": "기분이 우울할 땐 펭뚜를 보세요 🍬",
+    "20250119_105351.jpg": "너만 보인단 말이야~ 🎶💞",
+    "20250117_155954.jpg": "행복은 멀리 있지 않아요, 바로 여기! 🌈",
+    "20250117_155719.jpg": "말랑말랑, 콕 찔러보고 싶은 귀여움 👉👈",
+    "20250114_215318.jpg": "오늘 하루도 파이팅! 펭뚜가 응원해 💪✨",
+    "20241230_200712.jpg": "꿈속에서도 만나고 싶은 비주얼 🌙💤",
+    "1734390789549-5.jpg": "내 주머니에 쏙 넣고 다니고 싶어 🎒💕"
 };
 
 export default Gallery;

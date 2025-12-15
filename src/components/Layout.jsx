@@ -2,14 +2,14 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 
-const Layout = ({ children, onApplyClick }) => {
+const Layout = ({ children, onApplyClick, hideHeader = false }) => {
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
             minHeight: '100vh'
         }}>
-            <Header onApplyClick={onApplyClick} />
+            {!hideHeader && <Header onApplyClick={onApplyClick} />}
             <main style={{ flex: 1 }}>
                 {children}
             </main>
