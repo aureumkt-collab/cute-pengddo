@@ -104,6 +104,7 @@ const MusicPlayer = () => {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
+                setShowLyrics(false); // 플레이 멈추면 가사창 닫기
             } else {
                 audioRef.current.play();
             }
