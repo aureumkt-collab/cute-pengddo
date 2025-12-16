@@ -149,13 +149,13 @@ const ApplyForm = ({ onClose }) => {
                     border: '1px solid var(--color-border)'
                 }}>
                     <div style={{ marginBottom: '24px' }}>
-                        <label style={labelStyle}>이름 *</label>
+                        <label style={labelStyle}>소수명 *</label>
                         <input
                             type="text"
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            placeholder="실명을 입력해주세요"
+                            placeholder="소수명을 입력해주세요"
                             required
                             style={inputStyle}
                             onFocus={(e) => e.target.style.borderColor = 'var(--color-primary)'}

@@ -356,9 +356,104 @@ const Gallery = () => {
                                         onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
                                         onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
                                     />
+                                    {/* 순서 표시 */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '12px',
+                                        left: '12px',
+                                        background: 'rgba(0, 0, 0, 0.5)',
+                                        backdropFilter: 'blur(4px)',
+                                        color: 'white',
+                                        padding: '4px 10px',
+                                        borderRadius: '20px',
+                                        fontSize: '0.85rem',
+                                        fontWeight: '600',
+                                        zIndex: 1,
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        pointerEvents: 'none'
+                                    }}>
+                                        {index + 1}
+                                    </div>
+                                    {/* 해시태그 오버레이 */}
+                                    <div style={{
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        padding: '24px 12px 10px',
+                                        background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)',
+                                        color: 'white',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '500',
+                                        letterSpacing: '0.02em'
+                                    }}>
+                                        {HASHTAGS[filename] || '#펭뚜 #귀여움'}
+                                    </div>
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    {/* YouTube Section */}
+                    <div style={{
+                        marginTop: '64px',
+                        textAlign: 'center',
+                        animation: 'slideUp 0.6s ease-out 0.5s both'
+                    }}>
+                        <a
+                            href="https://www.youtube.com/@pengddo"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '16px 32px',
+                                background: 'linear-gradient(135deg, rgba(255, 0, 0, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '50px',
+                                color: 'var(--color-text)',
+                                fontSize: '1.1rem',
+                                fontWeight: '600',
+                                textDecoration: 'none',
+                                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.15)'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%)';
+                                e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 0, 0, 0.2)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)';
+                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.15)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                            }}
+                        >
+                            <svg
+                                width="28"
+                                height="28"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                style={{ color: '#FF0000' }}
+                            >
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                            </svg>
+                            <span>펭뚜 YouTube 채널 구경하기</span>
+                            <span style={{
+                                fontSize: '1.2rem',
+                                animation: 'float 2s ease-in-out infinite'
+                            }}>🐧</span>
+                        </a>
+                        <p style={{
+                            marginTop: '16px',
+                            color: 'var(--color-text-muted)',
+                            fontSize: '0.9rem'
+                        }}>
+                            더 많은 펭뚜의 귀여운 모습을 보러 오세요! ✨
+                        </p>
                     </div>
                 </div>
             </section>
@@ -447,8 +542,9 @@ const Gallery = () => {
                     {/* 이미지 인덱스 표시 */}
                     <div style={{
                         position: 'absolute',
-                        top: '20px',
-                        right: '60px',
+                        top: '60px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
                         color: 'rgba(255, 255, 255, 0.8)',
                         fontSize: '0.9rem',
                         background: 'rgba(0, 0, 0, 0.5)',
@@ -515,7 +611,32 @@ const CAPTIONS = {
     "20250117_155719.jpg": "말랑말랑, 콕 찔러보고 싶은 귀여움 👉👈",
     "20250114_215318.jpg": "오늘 하루도 파이팅! 펭뚜가 응원해 💪✨",
     "20241230_200712.jpg": "꿈속에서도 만나고 싶은 비주얼 🌙💤",
-    "1734390789549-5.jpg": "내 주머니에 쏙 넣고 다니고 싶어 🎒💕"
+    "1734390789549-5.jpg": "내 주머니에 쏙 넣고 다니고 싶어 🎒💕",
+    "1637476468581-23.jpg": "우리 언제부터 칭구야?",
+    "IMG_20221215_213800_076.jpg": "귀엽게 화 낼꺼야!"
+};
+
+const HASHTAGS = {
+    "bojagi_pengddo.jpg": "#보자기 #선물 #깜찍",
+    "1764841628723.jpg": "#힐링 #일상 #펭뚜",
+    "20251031_230027.jpg": "#귀여움 #최고 #심쿵",
+    "20251019_143807.jpg": "#눈맞춤 #설렘 #두근",
+    "20251019_143009.jpg": "#평화 #하루 #일상",
+    "20250915_115627.jpg": "#소중해 #최애 #친구",
+    "20250628_112253.jpg": "#불타는맘 #사랑 #심장",
+    "20250513_072019.jpg": "#빠져듬 #매력 #중독",
+    "20250412_095919.jpg": "#반짝반짝 #빛나 #스타",
+    "20250302_145435.jpg": "#귀염대장 #1등 #짱",
+    "20250215_133336.jpg": "#사랑스러움 #한도초과 #삐삐",
+    "20250127_183440.jpg": "#힐링 #행복 #기분업",
+    "20250119_105351.jpg": "#너만보여 #사랑 #하트",
+    "20250117_155954.jpg": "#행복 #무지개 #긍정",
+    "20250117_155719.jpg": "#말랑 #부드러움 #귀요미",
+    "20250114_215318.jpg": "#응원 #파이팅 #화이팅",
+    "20241230_200712.jpg": "#꿈속 #달달 #비주얼",
+    "1734390789549-5.jpg": "#포켓 #작고소중 #사랑해",
+    "1637476468581-23.jpg": "#우리꽤친해요",
+    "IMG_20221215_213800_076.jpg": "#귀엽게 #열받음"
 };
 
 export default Gallery;

@@ -1,7 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import BubbleParticles from './BubbleParticles';
+import assets from '../assets.json';
 
 const Hero = () => {
+    // 현재 이미지 인덱스
+    const [currentIndex, setCurrentIndex] = useState(() =>
+        Math.floor(Math.random() * assets.length)
+    );
+    // 애니메이션 상태
+    const [isAnimating, setIsAnimating] = useState(false);
+    // 반짝이 파티클
+    const [sparkles, setSparkles] = useState([]);
+
+    // 랜덤으로 다음 이미지 선택 (현재와 다른 이미지)
+    const getNextIndex = useCallback(() => {
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * assets.length);
+        } while (nextIndex === currentIndex && assets.length > 1);
+        return nextIndex;
+    }, [currentIndex]);
+
+    // 반짝이 파티클 생성
+    const createSparkles = useCallback(() => {
+        const newSparkles = [];
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * 360;
+            newSparkles.push({
+                id: Date.now() + i,
+                angle,
+                delay: Math.random() * 0.3,
+                size: Math.random() * 8 + 4
+            });
+        }
+        setSparkles(newSparkles);
+        setTimeout(() => setSparkles([]), 1000);
+    }, []);
+
+    // 5초마다 이미지 변경
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setIsAnimating(true);
+            createSparkles();
+
+            // 애니메이션 중간에 이미지 변경
+            setTimeout(() => {
+                setCurrentIndex(getNextIndex());
+            }, 400);
+
+            // 애니메이션 종료
+            setTimeout(() => {
+                setIsAnimating(false);
+            }, 800);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [getNextIndex, createSparkles]);
+
+    const currentImage = assets[currentIndex];
+
     return (
         <section style={{
             padding: '120px 0 80px',
@@ -10,6 +67,55 @@ const Hero = () => {
             position: 'relative',
             overflow: 'hidden'
         }}>
+            {/* 애니메이션 스타일 */}
+            <style>{`
+                @keyframes heroImageFlip {
+                    0% {
+                        transform: perspective(1000px) rotateY(0deg) scale(1);
+                        opacity: 1;
+                    }
+                    50% {
+                        transform: perspective(1000px) rotateY(90deg) scale(0.8);
+                        opacity: 0.5;
+                    }
+                    100% {
+                        transform: perspective(1000px) rotateY(0deg) scale(1);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes sparkleOut {
+                    0% {
+                        transform: translate(-50%, -50%) scale(0);
+                        opacity: 1;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translate(-50%, -50%) translateX(var(--tx)) translateY(var(--ty)) scale(1);
+                        opacity: 0;
+                    }
+                }
+                
+                @keyframes glowPulse {
+                    0%, 100% {
+                        box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(236, 72, 153, 0.2);
+                    }
+                    50% {
+                        box-shadow: 0 0 60px rgba(139, 92, 246, 0.6), 0 0 120px rgba(236, 72, 153, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
+                    }
+                }
+                
+                .hero-image-container {
+                    transform-style: preserve-3d;
+                }
+                
+                .hero-image-animating {
+                    animation: heroImageFlip 0.8s ease-in-out, glowPulse 0.8s ease-in-out;
+                }
+            `}</style>
+
             {/* Bubble Particles Background */}
             <BubbleParticles />
 
@@ -34,24 +140,55 @@ const Hero = () => {
             }} />
 
             <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{
-                    width: '180px',
-                    height: '180px',
-                    margin: '0 auto 40px',
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    border: '3px solid rgba(139, 92, 246, 0.5)',
-                    boxShadow: '0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(236, 72, 153, 0.2)'
-                }} className="animate-float animate-glow">
-                    <img
-                        src="/assets/1764841628723.jpg"
-                        alt="Pengddo Profile"
+                {/* 이미지 컨테이너 */}
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                    {/* 반짝이 파티클 */}
+                    {sparkles.map((sparkle) => {
+                        const rad = (sparkle.angle * Math.PI) / 180;
+                        const distance = 100;
+                        return (
+                            <div
+                                key={sparkle.id}
+                                style={{
+                                    position: 'absolute',
+                                    left: '50%',
+                                    top: '50%',
+                                    width: sparkle.size,
+                                    height: sparkle.size,
+                                    background: 'linear-gradient(135deg, #fff, rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8))',
+                                    borderRadius: '50%',
+                                    '--tx': `${Math.cos(rad) * distance}px`,
+                                    '--ty': `${Math.sin(rad) * distance}px`,
+                                    animation: `sparkleOut 0.8s ease-out ${sparkle.delay}s forwards`,
+                                    boxShadow: '0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(139, 92, 246, 0.5)',
+                                    zIndex: 10
+                                }}
+                            />
+                        );
+                    })}
+
+                    <div
+                        className={`hero-image-container ${isAnimating ? 'hero-image-animating' : ''}`}
                         style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
+                            width: '180px',
+                            height: '180px',
+                            margin: '0 auto 40px',
+                            borderRadius: '50%',
+                            overflow: 'hidden',
+                            border: '3px solid rgba(139, 92, 246, 0.5)',
+                            boxShadow: '0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(236, 72, 153, 0.2)'
                         }}
-                    />
+                    >
+                        <img
+                            src={`/assets/${currentImage}`}
+                            alt="Pengddo Profile"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover'
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <h1 style={{
