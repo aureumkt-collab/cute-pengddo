@@ -14,13 +14,14 @@ const Header = ({ onApplyClick }) => {
             <div className="container" style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center'
+                alignItems: 'center',
+
             }}>
                 <div className="logo" style={{
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    fontSize: '1.5rem',
+                    fontSize: '1.2rem',
                     fontWeight: '600',
                     fontFamily: 'var(--font-heading)',
                     background: 'var(--gradient-primary)',
