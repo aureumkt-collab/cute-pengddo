@@ -296,7 +296,7 @@ const Gallery = () => {
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text'
                     }}>
-                        Gallery
+                        펭뚜 놀이터
                     </h2>
                     <p style={{
                         textAlign: 'center',

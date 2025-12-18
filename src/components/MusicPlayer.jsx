@@ -107,7 +107,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             cover: '/assets/20251031_230027.jpg',
             description: `누구에게나 처음은 힘들고, 때론 소중한 꿈이 수포로 돌아가기도 합니다.남극에서 온 펭귄 인형 펭뚜가 겪은 '투자 실패'라는 시련과, 아빠를 따라 '귀염부서'에 입사하며 보여주는 뜨거운 가족애를 한 편의 서사시처럼 담아내고 싶었습니다.`,
             lyrics: `[Verse 1]
-        (쓸쓸한 피아노 독주로 시작) 고사리 같은 앞발로 모은 소중한 오백 원 업비트 파란 불빛 속에 내 꿈을 던졌지 엄마가 좋아하던 커다란 노래방 새우깡 그 봉지를 가득 채울 꿈에 부풀었는데
+        고사리 같은 앞발로 모은 소중한 오백 원 업비트 파란 불빛 속에 내 꿈을 던졌지 엄마가 좋아하던 커다란 노래방 새우깡 그 봉지를 가득 채울 꿈에 부풀었는데
 
     [Verse 2] 
 차트는 꺾이고 내 마음도 무너져 내렸어 남극의 얼음보다 차갑게 얼어붙은 내 계좌 오백 원의 기적은 수포로 돌아갔지만 노란 부리 끝에 맺힌 눈물을 닦아내 본다
@@ -383,7 +383,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                             onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
                             </svg>
                         </button>
                     </div>
@@ -574,7 +576,11 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     color: showLyrics ? '#F472B6' : 'white',
                     cursor: 'pointer'
                 }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
                 </button>
             </div>
 

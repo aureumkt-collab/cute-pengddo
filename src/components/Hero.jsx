@@ -219,7 +219,7 @@ const Hero = () => {
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text'
                 }}>
-                    펭뚜의 갤러리
+                    펭뚜 놀이터
                 </h1>
 
                 <p style={{
@@ -254,7 +254,7 @@ const Hero = () => {
                     }}
                     onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                    갤러리 보기
+                    놀이터 구경하기
                 </button>
             </div>
             {/* Mini Player */}

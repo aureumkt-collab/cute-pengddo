@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 const MusicContext = createContext();
 
-const playlist = ['/bgm.mp3', '/bgm2.mp3', '/500원의 비상v4.mp3', '/푸른 얼음 나라의 선물v1.mp3'];
+const playlist = ['/bgm.mp3', '/bgm2.mp3', '/flight_of_500won_v4.mp3', '/gift_from_blue_ice_v1.mp3'];
 
 export const MusicProvider = ({ children }) => {
     const [isPlaying, setIsPlaying] = useState(false);
