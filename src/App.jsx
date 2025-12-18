@@ -28,6 +28,7 @@ const setViewToURL = (view, replace = false) => {
 };
 
 import MusicPlayer from './components/MusicPlayer';
+import { MusicProvider } from './context/MusicContext';
 
 function App() {
   const [currentView, setCurrentView] = useState(() => getViewFromURL());
@@ -70,26 +71,27 @@ function App() {
   const showApplyForm = currentView === 'apply-form';
 
   return (
-    <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
+    <MusicProvider>
+      <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
 
-      <MusicPlayer />
 
-      {showApplyForm ? (
-        <ApplyForm onClose={handleCloseForm} />
-      ) : (
-        <>
-          <Hero />
-          <Gallery />
-        </>
-      )}
+        {showApplyForm ? (
+          <ApplyForm onClose={handleCloseForm} />
+        ) : (
+          <>
+            <Hero />
+            <Gallery />
+          </>
+        )}
 
-      {showApplyModal && (
-        <ApplyModal
-          onClose={handleCloseModal}
-          onAgree={handleAgreeAndProceed}
-        />
-      )}
-    </Layout>
+        {showApplyModal && (
+          <ApplyModal
+            onClose={handleCloseModal}
+            onAgree={handleAgreeAndProceed}
+          />
+        )}
+      </Layout>
+    </MusicProvider>
   );
 }
 

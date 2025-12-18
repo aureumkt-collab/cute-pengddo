@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import BubbleParticles from './BubbleParticles';
 import assets from '../assets.json';
+import MusicPlayer from './MusicPlayer';
 
 const Hero = () => {
     // 현재 이미지 인덱스
@@ -56,6 +57,20 @@ const Hero = () => {
 
         return () => clearInterval(interval);
     }, [getNextIndex, createSparkles]);
+
+    const [showMini, setShowMini] = useState(false);
+    const playerRef = useRef(null);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (playerRef.current) {
+                const rect = playerRef.current.getBoundingClientRect();
+                setShowMini(rect.bottom < 0);
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const currentImage = assets[currentIndex];
 
@@ -191,6 +206,10 @@ const Hero = () => {
                     </div>
                 </div>
 
+                <div ref={playerRef}>
+                    <MusicPlayer variant="hero" />
+                </div>
+
                 <h1 style={{
                     fontSize: '3.5rem',
                     fontWeight: '700',
@@ -237,6 +256,16 @@ const Hero = () => {
                 >
                     갤러리 보기
                 </button>
+            </div>
+            {/* Mini Player */}
+            <div style={{
+                opacity: showMini ? 1 : 0,
+                visibility: showMini ? 'visible' : 'hidden',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                pointerEvents: showMini ? 'auto' : 'none',
+                zIndex: 1000
+            }}>
+                <MusicPlayer variant="mini" />
             </div>
         </section>
     );

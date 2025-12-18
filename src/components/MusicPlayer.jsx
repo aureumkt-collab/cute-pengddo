@@ -1,9 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { useMusic } from '../context/MusicContext';
 
-// 플레이리스트 정의
-const playlist = ['/bgm.mp3', '/bgm2.mp3'];
 
-const LYRICS = `[Verse 1]
+const MusicPlayer = ({ variant = 'fixed' }) => {
+    const {
+        isPlaying,
+        togglePlay,
+        skipToNextTrack,
+        skipToPrevTrack,
+        showLyrics,
+        setShowLyrics,
+        trackIndex,
+        isShuffle,
+        setIsShuffle
+    } = useMusic();
+
+    // 곡 정보 (보통 metadata에서 가져오지만 여기서는 고정)
+    const trackInfo = [
+        {
+            title: '펭뚜송 (Official)',
+            artist: 'Pengddo',
+            cover: '/assets/bojagi_pengddo.jpg',
+            description: '작지만 세상에서 가장 큰 행복을 전하는 펭뚜의 응원가입니다. 아빠 뒤를 졸졸 따라다니고, 맛있는 밥 한 끼에 세상을 다 가진 듯 행복해하는 펭뚜의 순수함을 노래합니다. 지친 일상에 웃음이 필요한 모든 분께 펭뚜가 전하는 상큼 발랄한 비타민 같은 곡입니다.',
+            lyrics: `[Verse 1]
 안녕! 나는 펭뚜야 (뚜뚜)
 귀염부서 팀장 소수 인형
 호기심 백만 개 눈 반짝반짝
@@ -38,384 +57,564 @@ const LYRICS = `[Verse 1]
 랄랄라 펭뚜 (귀여워!) 랄랄라 펭뚜 (사랑스러워!)
 온 동네 귀여움은 내가 다 맡아!
 작지만 세상 제일 큰 행복
-펭뚜와 함께라면 매일이 즐거워!`;
+펭뚜와 함께라면 매일이 즐거워!`
+        },
+        {
+            title: '펭뚜송 v2',
+            artist: 'Pengddo feat. Hepeng',
+            cover: '/assets/1764841628723.jpg',
+            description: '공식 펭뚜송의 변형된 버전 입니다. 헤펭이와 추임새를 강조하였습니다.',
+            lyrics: `[Verse 1]
+안녕! 나는 펭뚜야 (뚜뚜)
+귀염부서 팀장 소수 인형
+호기심 백만 개 눈 반짝반짝
+세상 모든 게 신기해 항상 여섯 살!
 
+[Pre-Chorus]
+아빠~ 아빠~~ 어디 있어요? (찾는다 뚜뚜)
+아빠만 바라보는 귀염둥이
+오늘도 내 귀여움 충전 완료!
+모두에게 힐링을 줄게 (큐트 파워!)
 
-const MusicPlayer = () => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [trackIndex, setTrackIndex] = useState(0);
-    const [showLyrics, setShowLyrics] = useState(false);
-    const audioRef = useRef(null);
+[Chorus]
+랄랄라 펭뚜 (귀여워!) 랄랄라 펭뚜 (사랑스러워!)
+온 동네 귀여움은 내가 다 맡아!
+작지만 세상 제일 큰 행복
+펭뚜와 함께라면 매일이 즐거워!
+헤-펭-이! (멍~) 거기서 뭐 해?
 
-    // 곡이 끝나면 다음 곡으로 전환
-    const handleTrackEnd = () => {
-        const nextIndex = (trackIndex + 1) % playlist.length;
-        setTrackIndex(nextIndex);
-    };
+[Verse 2]
+헤펭이는 항상 멍 때리지 (멍청미!)
+펭뚜 옆에선 늘 티격태격 짝꿍
+"야! 펭뚜! (흥칫뿡)" 말만 그래도
+사실 제일 친한 우리 둘
 
-    // 트랙이 변경되면 자동 재생
-    useEffect(() => {
-        if (audioRef.current && isPlaying) {
-            audioRef.current.play().catch(e => console.log("Play failed", e));
+[Pre-Chorus]
+아빠~ 아빠~~ 배고파요! (냠냠 뚜뚜)
+밥 먹을 때도 귀여움 발사!
+매일매일 귀여움 만렙 찍는 중
+이 모습 그대로가 힐링 그 자체!
+
+[Chorus]
+랄랄라 펭뚜 (귀여워!) 랄랄라 펭뚜 (사랑스러워!)
+온 동네 귀여움은 내가 다 맡아!
+작지만 세상 제일 큰 행복
+펭뚜와 함께라면 매일이 즐거워!`
+        },
+        {
+            title: '500원의 비상',
+            artist: 'Pengddo',
+            cover: '/assets/20251031_230027.jpg',
+            description: `누구에게나 처음은 힘들고, 때론 소중한 꿈이 수포로 돌아가기도 합니다.남극에서 온 펭귄 인형 펭뚜가 겪은 '투자 실패'라는 시련과, 아빠를 따라 '귀염부서'에 입사하며 보여주는 뜨거운 가족애를 한 편의 서사시처럼 담아내고 싶었습니다.`,
+            lyrics: `[Verse 1]
+        (쓸쓸한 피아노 독주로 시작) 고사리 같은 앞발로 모은 소중한 오백 원 업비트 파란 불빛 속에 내 꿈을 던졌지 엄마가 좋아하던 커다란 노래방 새우깡 그 봉지를 가득 채울 꿈에 부풀었는데
+
+    [Verse 2] 
+차트는 꺾이고 내 마음도 무너져 내렸어 남극의 얼음보다 차갑게 얼어붙은 내 계좌 오백 원의 기적은 수포로 돌아갔지만 노란 부리 끝에 맺힌 눈물을 닦아내 본다
+
+    [Pre - Chorus] 
+슬픔은 여기까지, 다시 일어설 시간 아빠의 뒷모습을 따라 좁은 문을 열어 정장 대신 귀여움을 장착하고서 새로운 세상을 향해 뒤뚱이며 걷는다
+
+    [Chorus] 
+나의 이름은 펭뚜, 귀염부서의 신입사원! 무너진 코인의 잔해 위에서 다시 피어날 거야 비록 오백 원은 사라졌어도 나의 귀여움은 영원해 세상을 치유하는 미소로 다시 재기하리라 효도라는 이름의 찬란한 빛을 향해!
+
+    [Bridge] 
+노래방 새우깡, 그 바삭한 약속을 잊지 않아! 언젠가 내 월급으로 백 봉지 사다 줄 거야 지켜봐 줘, 펭뚜의 위대한 도전은 이제부터 시작이니까!
+
+    [Chorus]
+나의 이름은 펭뚜, 귀염부서의 신입사원! 무너진 코인의 잔해 위에서 다시 피어날 거야 비록 오백 원은 사라졌어도 나의 귀여움은 영원해 세상을 치유하는 미소로 다시 재기하리라 효도라는 이름의 찬란한 빛을 향해!
+
+    [Outro] 
+내일은 출근날... 귀여움 준비 완료.`
+        },
+        {
+            title: '푸른 얼음 나라의 선물',
+            artist: 'Pengddo',
+            cover: '/assets/20251019_143807.jpg',
+            description: `평범하고 조용했던 우리 집에 '천방지축 펭귄 인형' 하나가 들어오며 시작된 놀라운 변화를 노래합니다.서툰 발걸음과 말똥말똥한 눈동자 뒤에 숨겨진 펭뚜의 신비로운 힘, 그리고 그로 인해 다시 춤추기 시작한 우리 가족의 소중한 시간을 담은 따뜻한 헌사입니다.`,
+            lyrics: `[Verse 1]
+            먼 남극의 얼음 나라 꿈을 싣고 왔니 노란 부리 꼭 다물고 우리 집에 온 날 말똥말똥 커다란 눈, 무얼 보고 있니 세상 모든 게 신기한 너의 그 눈동자
+
+    [Verse 2] 
+엉뚱한 네 발걸음 아기처럼 서툴러도 사고뭉치 펭뚜야, 넌 알고 있을까 네가 우리 문을 열고 들어온 그 순간부터 무채색이던 거실이 빛으로 물든 걸
+
+    [Chorus] 
+신비로운 너의 마법, 작은 날개짓 하나에 멈춰있던 우리 시간이 춤을 추기 시작해 천방지축 펭뚜야, 너는 우리의 기적 남극에서 온 신비한 나의 작은 친구
+
+    [Bridge] 깜짝 놀란 그 표정은 언제나 귀여워 비틀거리는 뒷모습도 사랑스러워 너로 인해 달라진 이 놀라운 이야기 아름다운 서사가 여기서 시작돼
+
+    [Chorus] 신비로운 너의 마법, 작은 날개짓 하나에 멈춰있던 우리 시간이 춤을 추기 시작해 천방지축 펭뚜야, 너는 우리의 기적 남극에서 온 신비한 나의 작은 친구
+
+    [Outro](피아노 선율이 점차 잦아들며) 고마워 펭뚜야... 우리 곁에 와줘서... (부드러운 여운과 함께 종료)`
         }
-    }, [trackIndex]);
+    ];
 
-    useEffect(() => {
-        const playAudio = async () => {
-            try {
-                if (audioRef.current) {
-                    audioRef.current.volume = 0.3; // Start with a reasonable volume
-                    await audioRef.current.play();
-                    setIsPlaying(true);
-                }
-            } catch (err) {
-                console.log("Autoplay blocked, waiting for user interaction");
-                setIsPlaying(false);
-            }
-        };
+    const currentInfo = trackInfo[trackIndex] || trackInfo[0];
 
-        playAudio();
+    if (variant === 'mini') {
+        return (
+            <div style={{
+                position: 'fixed',
+                bottom: '30px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(28, 28, 30, 0.75)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '40px',
+                padding: '6px 20px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.4)',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                pointerEvents: 'auto'
+            }} className="mini-player-container">
+                {/* Title and Info */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    paddingRight: '12px',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+                    marginRight: '4px'
+                }}>
+                    <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '6px',
+                        overflow: 'hidden',
+                        flexShrink: 0
+                    }}>
+                        <img src={currentInfo.cover} alt="cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div style={{
+                        color: 'white',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        maxWidth: '100px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                    }}>
+                        {currentInfo.title}
+                    </div>
+                </div>
 
-        // If autoplay is blocked, try to play on the first user interaction
-        const handleUserInteraction = () => {
-            if (audioRef.current && audioRef.current.paused) {
-                audioRef.current.play()
-                    .then(() => setIsPlaying(true))
-                    .catch(e => console.log("Play failed", e));
-            }
-            // Remove the listeners once we've tried to play
-            ['click', 'keydown', 'touchstart'].forEach(event =>
-                document.removeEventListener(event, handleUserInteraction)
-            );
-        };
+                {/* Back */}
+                <button onClick={skipToPrevTrack} style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    padding: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.2s',
+                    opacity: 0.8
+                }} onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.2)';
+                    e.currentTarget.style.opacity = '1';
+                }}
+                    onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.opacity = '0.8';
+                    }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
+                    </svg>
+                </button>
 
-        ['click', 'keydown', 'touchstart'].forEach(event =>
-            document.addEventListener(event, handleUserInteraction)
+                {/* Play/Pause */}
+                <button onClick={togglePlay} style={{
+                    background: 'white',
+                    border: 'none',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    color: '#1c1c1e',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s',
+                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
+                }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                    {isPlaying ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1" />
+                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                    ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    )}
+                </button>
+
+                {/* Forward */}
+                <button onClick={skipToNextTrack} style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    padding: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'transform 0.2s',
+                    opacity: 0.8
+                }} onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.2)';
+                    e.currentTarget.style.opacity = '1';
+                }}
+                    onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.opacity = '0.8';
+                    }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                    </svg>
+                </button>
+
+                {/* Shuffle */}
+                <button onClick={() => setIsShuffle(!isShuffle)} style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: isShuffle ? '#F472B6' : 'white',
+                    padding: '8px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    opacity: isShuffle ? 1 : 0.6
+                }} onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.2)';
+                    e.currentTarget.style.opacity = '1';
+                }}
+                    onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.opacity = isShuffle ? 1 : 0.6;
+                    }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="16 3 21 3 21 8"></polyline>
+                        <line x1="4" y1="20" x2="21" y2="3"></line>
+                        <polyline points="21 16 21 21 16 21"></polyline>
+                        <line x1="15" y1="15" x2="21" y2="21"></line>
+                        <line x1="4" y1="4" x2="9" y2="9"></line>
+                    </svg>
+                </button>
+            </div>
+
         );
+    }
 
-        return () => {
-            ['click', 'keydown', 'touchstart'].forEach(event =>
-                document.removeEventListener(event, handleUserInteraction)
-            );
-        };
-    }, []);
+    if (variant === 'hero') {
+        return (
+            <div style={{
+                margin: '12px auto 24px',
+                width: '100%',
+                maxWidth: '420px',
+                background: 'rgba(44, 44, 46, 0.6)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '24px',
+                padding: '16px',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+                textAlign: 'left',
+                color: 'white',
+                position: 'relative',
+                zIndex: 10,
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                maxHeight: showLyrics ? '600px' : '160px',
+                overflow: 'hidden'
+            }} onMouseOver={(e) => {
+                if (!showLyrics) e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+                onMouseOut={(e) => {
+                    if (!showLyrics) e.currentTarget.style.transform = 'translateY(0)';
+                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px' }}>
+                    {/* Album Art */}
+                    <div style={{
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)',
+                        flexShrink: 0
+                    }}>
+                        <img src={currentInfo.cover} alt="cover" style={{
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            animation: isPlaying ? 'rotateArt 20s linear infinite' : 'none'
+                        }} />
+                    </div>
 
-    const togglePlay = () => {
-        if (audioRef.current) {
-            if (isPlaying) {
-                audioRef.current.pause();
-                setShowLyrics(false); // 플레이 멈추면 가사창 닫기
-            } else {
-                audioRef.current.play();
-            }
-            setIsPlaying(!isPlaying);
-        }
-    };
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {currentInfo.title}
+                        </div>
+                        <div style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.48)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {currentInfo.artist}
+                        </div>
+                    </div>
+                </div>
 
-    const skipToNextTrack = () => {
-        const nextIndex = (trackIndex + 1) % playlist.length;
-        setTrackIndex(nextIndex);
-        setIsPlaying(true);
-    };
+                {/* Controls */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => setShowLyrics(!showLyrics)} style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: showLyrics ? '#F472B6' : 'rgba(255, 255, 255, 0.4)',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            borderRadius: '10px'
+                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                        </button>
+                    </div>
 
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <button onClick={skipToPrevTrack} style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255, 255, 255, 0.4)',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            borderRadius: '10px'
+                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
+                            </svg>
+                        </button>
+
+                        <button onClick={togglePlay} style={{
+                            background: 'white',
+                            border: 'none',
+                            width: '44px',
+                            height: '44px',
+                            borderRadius: '50%',
+                            color: '#1c1c1e',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
+                            transition: 'all 0.2s'
+                        }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                            {isPlaying ? (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="6" y="4" width="4" height="16" rx="1" />
+                                    <rect x="14" y="4" width="4" height="16" rx="1" />
+                                </svg>
+                            ) : (
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z" />
+                                </svg>
+                            )}
+                        </button>
+
+                        <button onClick={skipToNextTrack} style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255, 255, 255, 0.4)',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            borderRadius: '10px'
+                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => setIsShuffle(!isShuffle)} style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: isShuffle ? '#F472B6' : 'rgba(255, 255, 255, 0.4)',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            borderRadius: '10px'
+                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="16 3 21 3 21 8"></polyline>
+                                <line x1="4" y1="20" x2="21" y2="3"></line>
+                                <polyline points="21 16 21 21 16 21"></polyline>
+                                <line x1="15" y1="15" x2="21" y2="21"></line>
+                                <line x1="4" y1="4" x2="9" y2="9"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Lyrics Section */}
+                <div style={{
+                    maxHeight: showLyrics ? '400px' : '0px',
+                    opacity: showLyrics ? 1 : 0,
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflowY: 'auto',
+                    marginTop: showLyrics ? '16px' : '0px',
+                    paddingTop: showLyrics ? '16px' : '0px',
+                    borderTop: showLyrics ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                    fontSize: '14px',
+                    lineHeight: '1.8',
+                    color: 'rgba(255, 255, 255, 0.8)',
+                    scrollbarWidth: 'none'
+                }} className="lyrics-container">
+                    <style>{`
+        .lyrics - container:: -webkit - scrollbar { display: none; }
+    `}</style>
+
+                    {currentInfo.description && (
+                        <div style={{
+                            marginBottom: '24px',
+                            padding: '16px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            borderRadius: '16px',
+                            fontSize: '13px',
+                            color: 'rgba(255, 255, 255, 0.6)',
+                            textAlign: 'center',
+                            lineHeight: '1.6',
+                            border: '1px solid rgba(255, 255, 255, 0.05)',
+                            whiteSpace: 'pre-line'
+                        }}>
+                            <div style={{ color: '#F472B6', fontWeight: 'bold', marginBottom: '8px', fontSize: '11px', letterSpacing: '0.05em' }}>SONG INFO</div>
+                            {currentInfo.description}
+                        </div>
+                    )}
+
+                    {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
+                        <div key={i} style={{
+                            margin: '8px 0',
+                            color: line.startsWith('[') ? '#F472B6' : 'inherit',
+                            fontWeight: line.startsWith('[') ? '600' : '400',
+                            textAlign: 'center'
+                        }}>{line}</div>
+                    ))}
+                </div>
+
+                <style>{`
+    @keyframes rotateArt {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(360deg); }
+    }
+    `}</style>
+            </div>
+        );
+    }
+
+    // Default floating variant
     return (
         <div style={{
             position: 'fixed',
             bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            right: '24px',
             zIndex: 100,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '16px'
+            flexDirection: 'column',
+            background: 'rgba(28, 28, 30, 0.85)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '24px',
+            padding: '8px 16px',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            maxHeight: showLyrics ? '400px' : '56px',
+            width: '200px',
+            overflow: 'hidden'
         }}>
-            <audio
-                ref={audioRef}
-                src={playlist[trackIndex]}
-                onEnded={handleTrackEnd}
-            />
-
-            {/* Lyrics Button - Only visible when playing */}
-            {isPlaying && (
-                <button
-                    onClick={() => setShowLyrics(!showLyrics)}
-                    style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        backdropFilter: 'blur(12px)',
-                        border: showLyrics ? '2px solid rgba(236, 72, 153, 0.5)' : '2px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: showLyrics
-                            ? '0 8px 32px rgba(236, 72, 153, 0.4)'
-                            : '0 8px 32px rgba(0, 0, 0, 0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.3s ease',
-                        background: showLyrics
-                            ? 'rgba(236, 72, 153, 0.2)'
-                            : 'rgba(31, 31, 31, 0.6)',
-                        color: showLyrics ? '#F9A8D4' : '#9CA3AF',
-                        cursor: 'pointer',
-                        position: 'absolute',
-                        right: 'calc(100% - 10px)',
-                        marginRight: '16px',
-                        zIndex: 1,
-                        animation: showLyrics ? 'glow 2s ease-in-out infinite' : 'none'
-                    }}
-                    onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                        if (!showLyrics) {
-                            e.currentTarget.style.color = '#F9A8D4';
-                            e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.5)';
-                        }
-                    }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        if (!showLyrics) {
-                            e.currentTarget.style.color = '#9CA3AF';
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                        }
-                    }}
-                    aria-label="가사 보기"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '24px', height: '24px' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
-                </button>
-            )}
-
-            {/* Play/Pause Button */}
-            <button
-                onClick={togglePlay}
-                style={{
-                    width: '56px',
-                    height: '56px',
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '40px' }}>
+                <button onClick={togglePlay} style={{
+                    width: '32px',
+                    height: '32px',
                     borderRadius: '50%',
-                    backdropFilter: 'blur(12px)',
-                    border: isPlaying ? '2px solid rgba(236, 72, 153, 0.5)' : '2px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: isPlaying
-                        ? '0 8px 32px rgba(236, 72, 153, 0.4)'
-                        : '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    background: isPlaying ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s ease',
-                    background: isPlaying
-                        ? 'rgba(236, 72, 153, 0.2)'
-                        : 'rgba(31, 31, 31, 0.6)',
-                    color: isPlaying ? '#F9A8D4' : '#9CA3AF',
-                    cursor: 'pointer',
-                    animation: isPlaying ? 'glow 2s ease-in-out infinite' : 'none',
-                    zIndex: 2
-                }}
-                onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                }}
-                onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                }}
-                aria-label={isPlaying ? "음악 끄기" : "음악 켜기"}
-            >
-                {isPlaying ? (
-                    <div style={{
-                        display: 'flex',
-                        gap: '3px',
-                        alignItems: 'flex-end',
-                        height: '20px'
-                    }}>
-                        <div style={{
-                            width: '4px',
-                            backgroundColor: 'currentColor',
-                            borderRadius: '2px',
-                            animation: 'music-bar 1s ease-in-out infinite'
-                        }}></div>
-                        <div style={{
-                            width: '4px',
-                            backgroundColor: 'currentColor',
-                            borderRadius: '2px',
-                            animation: 'music-bar 1.2s ease-in-out infinite 0.1s'
-                        }}></div>
-                        <div style={{
-                            width: '4px',
-                            backgroundColor: 'currentColor',
-                            borderRadius: '2px',
-                            animation: 'music-bar 0.8s ease-in-out infinite 0.2s'
-                        }}></div>
-                    </div>
-                ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '28px', height: '28px' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
-                    </svg>
-                )}
-            </button>
-
-            {/* Next Track Button - Only visible when playing */}
-            {isPlaying && (
-                <button
-                    onClick={skipToNextTrack}
-                    style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '50%',
-                        backdropFilter: 'blur(12px)',
-                        border: '2px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.3s ease',
-                        background: 'rgba(31, 31, 31, 0.6)',
-                        color: '#9CA3AF',
-                        cursor: 'pointer',
-                        position: 'absolute',
-                        left: 'calc(100% - 10px)', // Position to the right of the play button
-                        marginLeft: '16px',
-                        zIndex: 1
-                    }}
-                    onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.1)';
-                        e.currentTarget.style.color = '#F9A8D4';
-                        e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.5)';
-                    }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.color = '#9CA3AF';
-                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                    }}
-                    aria-label="다음 곡 재생"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: '24px', height: '24px' }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
-                    </svg>
-                </button>
-            )}
-
-            {/* Lyrics Modal */}
-            {showLyrics && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: 80,
-                        // left: 0,
-                        width: '100%',
-                        // height: '100%',
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        backdropFilter: 'blur(5px)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1000,
-                        animation: 'fadeIn 0.3s ease-out'
-                    }}
-                    onClick={() => setShowLyrics(false)}
-                >
-                    <div
-                        style={{
-                            background: 'rgba(30, 30, 30, 0.9)',
-                            borderRadius: '20px',
-                            padding: '40px 50px',
-                            // maxWidth: '1200px',
-                            minWidth: '400px',
-                            minHeight: '600px',
-                            maxHeight: '80vh',
-                            overflowY: 'auto',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5)',
-                            position: 'relative',
-                            color: 'white',
-                            animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <h3 style={{
-                            textAlign: 'center',
-                            marginBottom: '20px',
-                            fontSize: '1.5rem',
-                            fontWeight: 'bold',
-                            background: 'linear-gradient(to right, #F9A8D4, #F472B6)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent'
-                        }}>
-                            🎵 펭뚜송 가사
-                        </h3>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '12px',
-                            padding: '10px 0 60px 0'
-                        }}>
-                            {LYRICS.split('\n').filter(line => line.trim() !== '').map((line, index) => {
-                                const isHeader = line.startsWith('[') && line.endsWith(']');
-                                return isHeader ? (
-                                    <div key={index} style={{
-                                        color: '#F9A8D4',
-                                        fontSize: '0.9rem',
-                                        fontWeight: 'bold',
-                                        marginTop: '16px',
-                                        marginBottom: '4px',
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.05em',
-                                        textShadow: '0 0 10px rgba(249, 168, 212, 0.5)'
-                                    }}>
-                                        {line.slice(1, -1)}
-                                    </div>
-                                ) : (
-                                    <div key={index} style={{
-                                        background: 'rgba(255, 255, 255, 0.1)',
-                                        backdropFilter: 'blur(4px)',
-                                        padding: '12px 20px',
-                                        borderRadius: '20px',
-                                        borderBottomLeftRadius: '4px',
-                                        color: '#fff',
-                                        maxWidth: '100%',
-                                        lineHeight: '1.5',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                                        animation: `popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards`,
-                                        animationDelay: `${Math.min(index * 0.05, 1.5)}s`
-                                    }}
-                                        onMouseOver={(e) => {
-                                            e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
-                                            e.currentTarget.style.background = 'rgba(236, 72, 153, 0.2)';
-                                            e.currentTarget.style.borderColor = 'rgba(236, 72, 153, 0.4)';
-                                            e.currentTarget.style.boxShadow = '0 10px 20px rgba(236, 72, 153, 0.2)';
-                                        }}
-                                        onMouseOut={(e) => {
-                                            e.currentTarget.style.transform = 'scale(1)';
-                                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                            e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-                                        }}
-                                    >
-                                        {line}
-                                    </div>
-                                );
-                            })}
+                    justifyContent: 'center'
+                }}>
+                    {isPlaying ? (
+                        <div style={{ display: 'flex', gap: '3px' }}>
+                            <div style={{ width: '3px', height: '10px', background: 'white', borderRadius: '1px' }} />
+                            <div style={{ width: '3px', height: '10px', background: 'white', borderRadius: '1px' }} />
                         </div>
-                    </div>
+                    ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                    )}
+                </button>
+                <div style={{ fontSize: '11px', fontWeight: '600', color: 'white', opacity: 0.8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
+                    {currentInfo.title}
                 </div>
-            )}
+                <button onClick={() => setShowLyrics(!showLyrics)} style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: showLyrics ? '#F472B6' : 'white',
+                    cursor: 'pointer'
+                }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                </button>
+            </div>
 
-            <style>{`
-                @keyframes music-bar {
-                    0%, 100% { height: 8px; }
-                    50% { height: 20px; }
-                }
-                @keyframes glow {
-                    0%, 100% { box-shadow: 0 8px 32px rgba(236, 72, 153, 0.4); }
-                    50% { box-shadow: 0 8px 40px rgba(236, 72, 153, 0.7); }
-                }
-                @keyframes popIn {
-                    0% { opacity: 0; transform: scale(0.5); }
-                    100% { opacity: 1; transform: scale(1); }
-                }
-            `}</style>
+            <div style={{
+                maxHeight: showLyrics ? '320px' : '0px',
+                opacity: showLyrics ? 1 : 0,
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                overflowY: 'auto',
+                fontSize: '12px',
+                lineHeight: '1.6',
+                color: 'rgba(255, 255, 255, 0.8)',
+                marginTop: showLyrics ? '8px' : '0px',
+                paddingTop: showLyrics ? '8px' : '0px',
+                borderTop: showLyrics ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                scrollbarWidth: 'none'
+            }} className="lyrics-container">
+                {currentInfo.description && (
+                    <div style={{
+                        marginBottom: '16px',
+                        padding: '12px',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        textAlign: 'center',
+                        lineHeight: '1.5',
+                        border: '1px solid rgba(255, 255, 255, 0.05)'
+                    }}>
+                        {currentInfo.description}
+                    </div>
+                )}
+                {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
+                    <div key={i} style={{
+                        margin: '4px 0',
+                        color: line.startsWith('[') ? '#F472B6' : 'inherit',
+                        fontWeight: line.startsWith('[') ? '600' : '400',
+                        textAlign: 'center'
+                    }}>{line}</div>
+                ))}
+            </div>
         </div>
     );
 };

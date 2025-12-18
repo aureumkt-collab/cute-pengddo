@@ -81,7 +81,7 @@ const Header = ({ onApplyClick }) => {
                                     e.target.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.3)';
                                 }}
                             >
-                                🐧 귀염부서 지원
+                                귀염부서 지원
                             </button>
                         </li>
                     </ul>
