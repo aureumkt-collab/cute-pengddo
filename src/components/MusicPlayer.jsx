@@ -12,18 +12,38 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         setShowLyrics,
         trackIndex,
         isShuffle,
-        setIsShuffle
+        setIsShuffle,
+        currentTime,
+        duration,
+        seek
     } = useMusic();
+
+    const formatTime = (time) => {
+        if (isNaN(time)) return "0:00";
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const handleSeek = (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
+        if (clientX === undefined) return;
+
+        const x = clientX - rect.left;
+        const percentage = Math.max(0, Math.min(1, x / rect.width));
+        seek(percentage * duration);
+    };
 
     // 곡 정보 (보통 metadata에서 가져오지만 여기서는 고정)
     const trackInfo = [
         {
             title: '펭뚜송 (Official)',
             artist: 'Pengddo',
-            cover: '/assets/bojagi_pengddo.jpg',
+            cover: '/assets/pengddo_song_v1.png',
             description: '작지만 세상에서 가장 큰 행복을 전하는 펭뚜의 응원가입니다. 아빠 뒤를 졸졸 따라다니고, 맛있는 밥 한 끼에 세상을 다 가진 듯 행복해하는 펭뚜의 순수함을 노래합니다. 지친 일상에 웃음이 필요한 모든 분께 펭뚜가 전하는 상큼 발랄한 비타민 같은 곡입니다.',
             lyrics: `[Verse 1]
-안녕! 나는 펭뚜야 (뚜뚜)
+            안녕! 나는 펭뚜야 (뚜뚜)
 귀염부서 팀장 소수 인형
 호기심 백만 개 눈 반짝반짝
 세상 모든 게 신기해 항상 여섯 살!
@@ -62,7 +82,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         {
             title: '펭뚜송 v2',
             artist: 'Pengddo feat. Hepeng',
-            cover: '/assets/1764841628723.jpg',
+            cover: '/assets/pengddo_song_v2.png',
             description: '공식 펭뚜송의 변형된 버전 입니다. 헤펭이와 추임새를 강조하였습니다.',
             lyrics: `[Verse 1]
 안녕! 나는 펭뚜야 (뚜뚜)
@@ -104,16 +124,16 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         {
             title: '500원의 비상',
             artist: 'Pengddo',
-            cover: '/assets/20251031_230027.jpg',
+            cover: '/assets/500won_fly.png',
             description: `누구에게나 처음은 힘들고, 때론 소중한 꿈이 수포로 돌아가기도 합니다.남극에서 온 펭귄 인형 펭뚜가 겪은 '투자 실패'라는 시련과, 아빠를 따라 '귀염부서'에 입사하며 보여주는 뜨거운 가족애를 한 편의 서사시처럼 담아내고 싶었습니다.`,
             lyrics: `[Verse 1]
-        고사리 같은 앞발로 모은 소중한 오백 원 업비트 파란 불빛 속에 내 꿈을 던졌지 엄마가 좋아하던 커다란 노래방 새우깡 그 봉지를 가득 채울 꿈에 부풀었는데
-
-    [Verse 2] 
-차트는 꺾이고 내 마음도 무너져 내렸어 남극의 얼음보다 차갑게 얼어붙은 내 계좌 오백 원의 기적은 수포로 돌아갔지만 노란 부리 끝에 맺힌 눈물을 닦아내 본다
-
-    [Pre - Chorus] 
-슬픔은 여기까지, 다시 일어설 시간 아빠의 뒷모습을 따라 좁은 문을 열어 정장 대신 귀여움을 장착하고서 새로운 세상을 향해 뒤뚱이며 걷는다
+            고사리 같은 앞발로 모은 소중한 오백 원 업비트 파란 불빛 속에 내 꿈을 던졌지 엄마가 좋아하던 커다란 노래방 새우깡 그 봉지를 가득 채울 꿈에 부풀었는데
+            
+            [Verse 2] 
+            차트는 꺾이고 내 마음도 무너져 내렸어 남극의 얼음보다 차갑게 얼어붙은 내 계좌 오백 원의 기적은 수포로 돌아갔지만 노란 부리 끝에 맺힌 눈물을 닦아내 본다
+            
+            [Pre - Chorus]
+            슬픔은 여기까지, 다시 일어설 시간 아빠의 뒷모습을 따라 좁은 문을 열어 정장 대신 귀여움을 장착하고서 새로운 세상을 향해 뒤뚱이며 걷는다
 
     [Chorus] 
 나의 이름은 펭뚜, 귀염부서의 신입사원! 무너진 코인의 잔해 위에서 다시 피어날 거야 비록 오백 원은 사라졌어도 나의 귀여움은 영원해 세상을 치유하는 미소로 다시 재기하리라 효도라는 이름의 찬란한 빛을 향해!
@@ -130,7 +150,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         {
             title: '푸른 얼음 나라의 선물',
             artist: 'Pengddo',
-            cover: '/assets/20251019_143807.jpg',
+            cover: '/assets/ice_gift.png',
             description: `평범하고 조용했던 우리 집에 '천방지축 펭귄 인형' 하나가 들어오며 시작된 놀라운 변화를 노래합니다.서툰 발걸음과 말똥말똥한 눈동자 뒤에 숨겨진 펭뚜의 신비로운 힘, 그리고 그로 인해 다시 춤추기 시작한 우리 가족의 소중한 시간을 담은 따뜻한 헌사입니다.`,
             lyrics: `[Verse 1]
             먼 남극의 얼음 나라 꿈을 싣고 왔니 노란 부리 꼭 다물고 우리 집에 온 날 말똥말똥 커다란 눈, 무얼 보고 있니 세상 모든 게 신기한 너의 그 눈동자
@@ -141,11 +161,103 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
     [Chorus] 
 신비로운 너의 마법, 작은 날개짓 하나에 멈춰있던 우리 시간이 춤을 추기 시작해 천방지축 펭뚜야, 너는 우리의 기적 남극에서 온 신비한 나의 작은 친구
 
-    [Bridge] 깜짝 놀란 그 표정은 언제나 귀여워 비틀거리는 뒷모습도 사랑스러워 너로 인해 달라진 이 놀라운 이야기 아름다운 서사가 여기서 시작돼
+    [Bridge] 
+    깜짝 놀란 그 표정은 언제나 귀여워 비틀거리는 뒷모습도 사랑스러워 너로 인해 달라진 이 놀라운 이야기 아름다운 서사가 여기서 시작돼
 
-    [Chorus] 신비로운 너의 마법, 작은 날개짓 하나에 멈춰있던 우리 시간이 춤을 추기 시작해 천방지축 펭뚜야, 너는 우리의 기적 남극에서 온 신비한 나의 작은 친구
+    [Chorus] 
+    신비로운 너의 마법, 작은 날개짓 하나에 멈춰있던 우리 시간이 춤을 추기 시작해 천방지축 펭뚜야, 너는 우리의 기적 남극에서 온 신비한 나의 작은 친구
 
-    [Outro](피아노 선율이 점차 잦아들며) 고마워 펭뚜야... 우리 곁에 와줘서... (부드러운 여운과 함께 종료)`
+    [Outro]
+    고마워 펭뚜야... 우리 곁에 와줘서... (부드러운 여운과 함께 종료)`
+        },
+        {
+            title: '티격태격',
+            artist: 'Pengddo feat. Hepeng',
+            cover: '/assets/fight_scat.png',
+            description: `"말 많은 펭뚜와 음악 광 헤펭이의 티격태격 케미를 담은 경쾌한 펑키 사운드. 다름을 넘어 하나로 만나는 두 인형의 특별한 이중주입니다."`,
+            lyrics: `[Intro]
+"슈비두-바 다바다바- 둠칫!"
+
+"야, 너... 내 말 좀 들어봐."
+
+"뚜-왑! 슈비두-왑! 뭐라구?"
+
+[Verse 1]
+안녕 나를 봐, 평범한 게 내 매력
+
+근데 너를 보면 가끔은 나 혈압 올라
+
+말을 걸면 멍- 대답은 늘 어?
+
+항상 끼고 있는 그 헤드셋은 네 신체 일부니?
+
+한쪽은 덜렁덜렁 곧 떨어질 것 같은데
+
+내 목소린 그 틈으로도 안 들어가는 것 같아
+
+답답해 미치겠네, 오늘도 혼잣말 중!
+
+[Verse 2]
+나를 봐, 이 리듬이 내 전부야 바-다-비-두!
+
+왼쪽 귀엔 힙합, 오른쪽 귀엔 자유가 흘러
+
+덜렁대는 헤드셋? 이게 내 스웨그인 걸
+
+네가 뭐라 해도 내 세상은 비트 위
+
+너의 잔소리도 왠지 샘플링 같아
+
+조금만 더 크게 말해봐, 베이스에 묻히니까!
+
+[Pre-Chorus]
+우린 너무나 달라, 얼음과 불처럼
+
+나는 말하고, 너는 춤을 추고
+
+자꾸만 어긋나는 우리 둘의 리듬
+
+[Chorus]
+달라도 너무 다른 우리들의 사정
+
+티격태격해도 어느새 우린 짝꿍
+
+한쪽 귀를 열어둘게 너의 목소리 들리게
+
+서로 다른 비트 위에 피어나는 우리 우정
+
+랄랄라- 너와 나의 얘기, 반대의 끌림!
+
+[Bridge]
+"제발 그 덜렁거리는 것 좀 고쳐!"
+
+"바-다-비-두-밥! 넌 몰라~"
+
+"내가 말할 때만이라도 음악 좀 꺼!"
+
+"슈비-두-비-둡! 그럼 들을게!"
+
+"하! 진짜 못 말린다니까!"
+
+[Chorus]
+달라도 너무 다른 우리들의 사정
+
+티격태격해도 어느새 우린 짝꿍
+
+한쪽 귀를 열어둘게 너의 목소리 들리게
+
+서로 다른 비트 위에 피어나는 우리 우정
+
+랄랄라- 너와 나의 얘기, 반대의 끌림!
+
+[Outro]
+"슈비두-왑 뚜왑- 뚜왑!"
+
+"아니, 칭찬이 아니라니까... 에휴."
+
+"가자, 이제!" "그래, 함께!"
+
+"바-다-다-바-두-왑!"`
         }
     ];
 
@@ -154,22 +266,18 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
     if (variant === 'mini') {
         return (
             <div style={{
-                position: 'fixed',
-                bottom: '30px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                zIndex: 1000,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
-                background: 'rgba(28, 28, 30, 0.75)',
+                background: 'rgba(28, 28, 30, 0.85)',
                 backdropFilter: 'blur(20px)',
                 borderRadius: '40px',
-                padding: '6px 20px',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.4)',
-                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                pointerEvents: 'auto'
+                padding: '8px 24px',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
+                transition: 'all 0.3s ease',
+                position: 'relative',
+                overflow: 'hidden'
             }} className="mini-player-container">
                 {/* Title and Info */}
                 <div style={{
@@ -202,6 +310,36 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 </div>
 
+                {/* Progress Bar (Mini) */}
+                <div
+                    onClick={handleSeek}
+                    onTouchStart={handleSeek}
+                    style={{
+                        position: 'absolute',
+                        bottom: '0',
+                        left: '24px',
+                        right: '24px',
+                        height: '10px', // Increased hit area
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'flex-end'
+                    }}
+                >
+                    <div style={{
+                        width: '100%',
+                        height: '2px',
+                        background: 'rgba(255, 255, 255, 0.1)',
+                        position: 'relative'
+                    }}>
+                        <div style={{
+                            width: `${(currentTime / duration) * 100}%`,
+                            height: '100%',
+                            background: '#F472B6',
+                            transition: 'width 0.1s linear'
+                        }} />
+                    </div>
+                </div>
+
                 {/* Back */}
                 <button onClick={skipToPrevTrack} style={{
                     background: 'transparent',
@@ -212,16 +350,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'transform 0.2s',
+                    transition: 'all 0.2s',
                     opacity: 0.8
-                }} onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.2)';
-                    e.currentTarget.style.opacity = '1';
-                }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.opacity = '0.8';
-                    }}>
+                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
                     </svg>
@@ -239,10 +370,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    transition: 'transform 0.2s',
+                    transition: 'all 0.2s',
                     boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
-                }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                    onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                }} className="btn-hover-scale btn-active-scale">
                     {isPlaying ? (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                             <rect x="6" y="4" width="4" height="16" rx="1" />
@@ -265,16 +395,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'transform 0.2s',
+                    transition: 'all 0.2s',
                     opacity: 0.8
-                }} onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.2)';
-                    e.currentTarget.style.opacity = '1';
-                }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.opacity = '0.8';
-                    }}>
+                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                     </svg>
@@ -292,14 +415,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     justifyContent: 'center',
                     transition: 'all 0.2s',
                     opacity: isShuffle ? 1 : 0.6
-                }} onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.2)';
-                    e.currentTarget.style.opacity = '1';
-                }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.opacity = isShuffle ? 1 : 0.6;
-                    }}>
+                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="16 3 21 3 21 8"></polyline>
                         <line x1="4" y1="20" x2="21" y2="3"></line>
@@ -332,7 +448,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 position: 'relative',
                 zIndex: 10,
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                maxHeight: showLyrics ? '600px' : '160px',
+                maxHeight: showLyrics ? '600px' : '260px',
                 overflow: 'hidden'
             }} onMouseOver={(e) => {
                 if (!showLyrics) e.currentTarget.style.transform = 'translateY(-2px)';
@@ -369,6 +485,61 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 </div>
 
+                {/* Progress Bar (Hero) */}
+                <div style={{ marginBottom: '16px', padding: '0 4px' }}>
+                    <div
+                        onClick={handleSeek}
+                        onTouchStart={handleSeek}
+                        style={{
+                            height: '20px', // Increased hit area
+                            display: 'flex',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <div style={{
+                            flex: 1,
+                            height: '4px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '2px',
+                            position: 'relative'
+                        }}>
+                            <div style={{
+                                width: `${(currentTime / duration) * 100}%`,
+                                height: '100%',
+                                background: 'linear-gradient(90deg, #F472B6, #FB923C)',
+                                borderRadius: '2px',
+                                position: 'relative'
+                            }}>
+                                {/* Thumb */}
+                                <div style={{
+                                    width: '12px',
+                                    height: '12px',
+                                    background: 'white',
+                                    borderRadius: '50%',
+                                    position: 'absolute',
+                                    right: '-6px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                                    display: isPlaying ? 'block' : 'none'
+                                }} />
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginTop: '4px',
+                        fontSize: '11px',
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        fontWeight: '500'
+                    }}>
+                        <span>{formatTime(currentTime)}</span>
+                        <span>{formatTime(duration)}</span>
+                    </div>
+                </div>
+
                 {/* Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -380,8 +551,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                             borderRadius: '10px'
-                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                        }} className="btn-hover-bg btn-active-scale">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <line x1="12" y1="16" x2="12" y2="12" />
@@ -397,9 +567,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             color: 'rgba(255, 255, 255, 0.4)',
                             padding: '8px',
                             cursor: 'pointer',
-                            borderRadius: '10px'
-                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            borderRadius: '10px',
+                            transition: 'all 0.2s'
+                        }} className="btn-hover-bg btn-hover-opacity btn-active-scale">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
                             </svg>
@@ -418,8 +588,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             cursor: 'pointer',
                             boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                             transition: 'all 0.2s'
-                        }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                        }} className="btn-hover-scale btn-active-scale">
                             {isPlaying ? (
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                     <rect x="6" y="4" width="4" height="16" rx="1" />
@@ -438,9 +607,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             color: 'rgba(255, 255, 255, 0.4)',
                             padding: '8px',
                             cursor: 'pointer',
-                            borderRadius: '10px'
-                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                            borderRadius: '10px',
+                            transition: 'all 0.2s'
+                        }} className="btn-hover-bg btn-hover-opacity btn-active-scale">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                             </svg>
@@ -456,8 +625,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                             borderRadius: '10px'
-                        }} onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}>
+                        }} className="btn-hover-bg btn-active-scale">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="16 3 21 3 21 8"></polyline>
                                 <line x1="4" y1="20" x2="21" y2="3"></line>
@@ -508,10 +676,10 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
                         <div key={i} style={{
                             margin: '8px 0',
-                            color: line.startsWith('[') ? '#F472B6' : 'inherit',
-                            fontWeight: line.startsWith('[') ? '600' : '400',
+                            color: line.trim().startsWith('[') ? '#F472B6' : 'inherit',
+                            fontWeight: line.trim().startsWith('[') ? '600' : '400',
                             textAlign: 'center'
-                        }}>{line}</div>
+                        }}>{line.trim()}</div>
                     ))}
                 </div>
 
@@ -541,10 +709,36 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
             transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            maxHeight: showLyrics ? '400px' : '56px',
+            maxHeight: showLyrics ? '400px' : '88px',
             width: '200px',
             overflow: 'hidden'
         }}>
+            {/* Progress Bar (Floating) */}
+            <div
+                onClick={handleSeek}
+                onTouchStart={handleSeek}
+                style={{
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    height: '8px', // Increased hit area
+                    cursor: 'pointer'
+                }}
+            >
+                <div style={{
+                    width: '100%',
+                    height: '2px',
+                    background: 'rgba(255, 255, 255, 0.05)'
+                }}>
+                    <div style={{
+                        width: `${(currentTime / duration) * 100}%`,
+                        height: '100%',
+                        background: '#F472B6',
+                        transition: 'width 0.1s linear'
+                    }} />
+                </div>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '40px' }}>
                 <button onClick={togglePlay} style={{
                     width: '32px',
@@ -615,10 +809,10 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
                     <div key={i} style={{
                         margin: '4px 0',
-                        color: line.startsWith('[') ? '#F472B6' : 'inherit',
-                        fontWeight: line.startsWith('[') ? '600' : '400',
+                        color: line.trim().startsWith('[') ? '#F472B6' : 'inherit',
+                        fontWeight: line.trim().startsWith('[') ? '600' : '400',
                         textAlign: 'center'
-                    }}>{line}</div>
+                    }}>{line.trim()}</div>
                 ))}
             </div>
         </div>

@@ -344,6 +344,7 @@ const Gallery = () => {
                                     <img
                                         src={`/assets/${filename}`}
                                         alt={`Gallery item ${index + 1}`}
+                                        loading="lazy"
                                         style={{
                                             position: 'absolute',
                                             top: 0,

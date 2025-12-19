@@ -259,11 +259,15 @@ const Hero = () => {
             </div>
             {/* Mini Player */}
             <div style={{
+                position: 'fixed',
+                bottom: '30px',
+                left: '50%',
+                zIndex: 2200,
                 opacity: showMini ? 1 : 0,
                 visibility: showMini ? 'visible' : 'hidden',
-                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                pointerEvents: showMini ? 'auto' : 'none',
-                zIndex: 1000
+                transform: `translateX(-50%) translateY(${showMini ? '0' : '20px'})`,
+                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                pointerEvents: showMini ? 'auto' : 'none'
             }}>
                 <MusicPlayer variant="mini" />
             </div>

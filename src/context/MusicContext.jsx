@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 const MusicContext = createContext();
 
-const playlist = ['/bgm.mp3', '/bgm2.mp3', '/flight_of_500won_v4.mp3', '/gift_from_blue_ice_v1.mp3'];
+const playlist = ['/bgm.mp3', '/bgm2.mp3', '/flight_of_500won_v4.mp3', '/gift_from_blue_ice_v1.mp3', '/fight_scat_v1.mp3'];
 
 export const MusicProvider = ({ children }) => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -10,6 +10,8 @@ export const MusicProvider = ({ children }) => {
     const [showLyrics, setShowLyrics] = useState(false);
     const [volume, setVolume] = useState(0.3);
     const [isShuffle, setIsShuffle] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
     const audioRef = useRef(null);
 
     const getRandomIndex = (currentIndex) => {
@@ -30,6 +32,25 @@ export const MusicProvider = ({ children }) => {
         }
     };
 
+    const handleTimeUpdate = () => {
+        if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime);
+        }
+    };
+
+    const handleLoadedMetadata = () => {
+        if (audioRef.current) {
+            setDuration(audioRef.current.duration);
+        }
+    };
+
+    const seek = (time) => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = time;
+            setCurrentTime(time);
+        }
+    };
+
     useEffect(() => {
         if (audioRef.current && isPlaying) {
             audioRef.current.play().catch(e => console.log("Play failed", e));
@@ -47,8 +68,13 @@ export const MusicProvider = ({ children }) => {
         };
 
         audio.addEventListener('ended', handleTrackEnd);
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+        audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+
         return () => {
             audio.removeEventListener('ended', handleTrackEnd);
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+            audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
         };
     }, [trackIndex, isPlaying, volume, isShuffle]);
 
@@ -118,7 +144,10 @@ export const MusicProvider = ({ children }) => {
         skipToNextTrack,
         skipToPrevTrack,
         playlist,
-        currentTrack: playlist[trackIndex]
+        currentTrack: playlist[trackIndex],
+        currentTime,
+        duration,
+        seek
     };
 
     return (

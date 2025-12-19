@@ -294,3 +294,27 @@ button {
     transform: translateY(-10px);
   }
 }
+
+/* Music Player Hover Utilities */
+@media (hover: hover) {
+  .btn-hover-scale:hover {
+    transform: scale(1.1) !important;
+  }
+
+  .btn-hover-scale-lg:hover {
+    transform: scale(1.2) !important;
+  }
+
+  .btn-hover-opacity:hover {
+    opacity: 1 !important;
+  }
+
+  .btn-hover-bg:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+  }
+}
+
+.btn-active-scale:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s !important;
+}
