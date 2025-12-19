@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useMusic } from '../context/MusicContext';
 
 
@@ -18,6 +18,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         seek
     } = useMusic();
 
+    const [isDragging, setIsDragging] = useState(false);
+    const progressBarRef = useRef(null);
+
     const formatTime = (time) => {
         if (isNaN(time)) return "0:00";
         const minutes = Math.floor(time / 60);
@@ -34,6 +37,45 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         const percentage = Math.max(0, Math.min(1, x / rect.width));
         seek(percentage * duration);
     };
+
+    const onDragStart = (e) => {
+        setIsDragging(true);
+        handleSeek(e);
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        const handleMove = (e) => {
+            if (e.type === 'touchmove') {
+                // e.preventDefault(); // This can cause issues if not handled carefully in some browsers
+            }
+            if (!progressBarRef.current) return;
+            const rect = progressBarRef.current.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
+            if (clientX === undefined) return;
+
+            const x = clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, x / rect.width));
+            seek(percentage * duration);
+        };
+
+        const handleEnd = () => {
+            setIsDragging(false);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchmove', handleMove);
+        window.addEventListener('touchend', handleEnd);
+
+        return () => {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleEnd);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
+        };
+    }, [isDragging, duration, seek]);
 
     // 곡 정보 (보통 metadata에서 가져오지만 여기서는 고정)
     const trackInfo = [
@@ -312,8 +354,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
 
                 {/* Progress Bar (Mini) */}
                 <div
-                    onClick={handleSeek}
-                    onTouchStart={handleSeek}
+                    ref={variant === 'mini' ? progressBarRef : null}
+                    onMouseDown={onDragStart}
+                    onTouchStart={onDragStart}
                     style={{
                         position: 'absolute',
                         bottom: '0',
@@ -335,8 +378,24 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             width: `${(currentTime / duration) * 100}%`,
                             height: '100%',
                             background: '#F472B6',
-                            transition: 'width 0.1s linear'
-                        }} />
+                            transition: isDragging ? 'none' : 'width 0.1s linear',
+                            position: 'relative'
+                        }}>
+                            {/* Thumb (Mini) */}
+                            <div style={{
+                                width: '10px',
+                                height: '10px',
+                                background: 'white',
+                                borderRadius: '50%',
+                                position: 'absolute',
+                                right: '-5px',
+                                top: '50%',
+                                transform: `translateY(-50%) scale(${isDragging ? 1.4 : 0})`,
+                                opacity: isDragging ? 1 : 0,
+                                boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                                transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                            }} />
+                        </div>
                     </div>
                 </div>
 
@@ -488,8 +547,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 {/* Progress Bar (Hero) */}
                 <div style={{ marginBottom: '16px', padding: '0 4px' }}>
                     <div
-                        onClick={handleSeek}
-                        onTouchStart={handleSeek}
+                        ref={variant === 'hero' ? progressBarRef : null}
+                        onMouseDown={onDragStart}
+                        onTouchStart={onDragStart}
                         style={{
                             height: '20px', // Increased hit area
                             display: 'flex',
@@ -520,9 +580,10 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                     position: 'absolute',
                                     right: '-6px',
                                     top: '50%',
-                                    transform: 'translateY(-50%)',
-                                    boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-                                    display: isPlaying ? 'block' : 'none'
+                                    transform: `translateY(-50%) scale(${isDragging ? 1.4 : 1})`,
+                                    boxShadow: isDragging ? '0 0 15px rgba(255,255,255,0.5)' : '0 0 10px rgba(0,0,0,0.5)',
+                                    display: (isPlaying || isDragging) ? 'block' : 'none',
+                                    transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                                 }} />
                             </div>
                         </div>
@@ -715,8 +776,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         }}>
             {/* Progress Bar (Floating) */}
             <div
-                onClick={handleSeek}
-                onTouchStart={handleSeek}
+                ref={variant === 'fixed' || !variant ? progressBarRef : null}
+                onMouseDown={onDragStart}
+                onTouchStart={onDragStart}
                 style={{
                     position: 'absolute',
                     top: '0',
@@ -735,8 +797,24 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         width: `${(currentTime / duration) * 100}%`,
                         height: '100%',
                         background: '#F472B6',
-                        transition: 'width 0.1s linear'
-                    }} />
+                        transition: isDragging ? 'none' : 'width 0.1s linear',
+                        position: 'relative'
+                    }}>
+                        {/* Thumb (Floating) */}
+                        <div style={{
+                            width: '8px',
+                            height: '8px',
+                            background: 'white',
+                            borderRadius: '50%',
+                            position: 'absolute',
+                            right: '-4px',
+                            top: '50%',
+                            transform: `translateY(-50%) scale(${isDragging ? 1.4 : 0})`,
+                            opacity: isDragging ? 1 : 0,
+                            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+                            transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+                        }} />
+                    </div>
                 </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: '40px' }}>
