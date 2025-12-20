@@ -109,7 +109,6 @@ export const MusicProvider = ({ children }) => {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
-                setIsPanelOpen(false);
             } else {
                 audioRef.current.play().catch(e => console.log("Play failed", e));
             }

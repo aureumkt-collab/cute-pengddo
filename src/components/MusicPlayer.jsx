@@ -612,11 +612,32 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                         {track.artist}
                                     </div>
                                 </div>
-                                {trackIndex === index && isPlaying && (
-                                    <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px' }}>
-                                        <div style={{ width: '2px', height: '100%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.8s ease-in-out infinite alternate' }} />
-                                        <div style={{ width: '2px', height: '60%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.5s ease-in-out infinite alternate-reverse' }} />
-                                        <div style={{ width: '2px', height: '80%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.7s ease-in-out infinite alternate' }} />
+                                {trackIndex === index && (
+                                    <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px', opacity: 0.8 }}>
+                                        <div style={{
+                                            width: '2px',
+                                            height: isPlaying ? '100%' : '60%',
+                                            background: '#F472B6',
+                                            borderRadius: '1px',
+                                            animation: isPlaying ? 'musicBar 0.8s ease-in-out infinite alternate' : 'none',
+                                            transition: 'height 0.3s ease'
+                                        }} />
+                                        <div style={{
+                                            width: '2px',
+                                            height: isPlaying ? '60%' : '40%',
+                                            background: '#F472B6',
+                                            borderRadius: '1px',
+                                            animation: isPlaying ? 'musicBar 0.5s ease-in-out infinite alternate-reverse' : 'none',
+                                            transition: 'height 0.3s ease'
+                                        }} />
+                                        <div style={{
+                                            width: '2px',
+                                            height: isPlaying ? '80%' : '50%',
+                                            background: '#F472B6',
+                                            borderRadius: '1px',
+                                            animation: isPlaying ? 'musicBar 0.7s ease-in-out infinite alternate' : 'none',
+                                            transition: 'height 0.3s ease'
+                                        }} />
                                     </div>
                                 )}
                             </div>
@@ -643,32 +664,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                 border: '1px solid rgba(255, 255, 255, 0.05)',
                                 whiteSpace: 'pre-line'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-                                    <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em' }}>SONG INFO</div>
-                                    <button
-                                        onClick={handleShare}
-                                        style={{
-                                            background: 'rgba(244, 114, 182, 0.1)',
-                                            border: 'none',
-                                            borderRadius: '6px',
-                                            color: '#F472B6',
-                                            padding: '4px',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            transition: 'all 0.2s'
-                                        }}
-                                        className="btn-active-scale"
-                                        title="공유하기"
-                                    >
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                                            <polyline points="16 6 12 2 8 6"></polyline>
-                                            <line x1="12" y1="2" x2="12" y2="15"></line>
-                                        </svg>
-                                    </button>
-                                </div>
+                                <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em', marginBottom: '8px' }}>SONG INFO</div>
+
                                 {currentInfo.description}
                             </div>
                         )}
@@ -897,25 +894,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             lineHeight: '1.5',
                             border: '1px solid rgba(255, 255, 255, 0.05)'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '6px' }}>
-                                <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em' }}>SONG INFO</div>
-                                <button
-                                    onClick={handleShare}
-                                    style={{
-                                        background: 'rgba(244, 114, 182, 0.1)',
-                                        border: 'none',
-                                        borderRadius: '4px',
-                                        color: '#F472B6',
-                                        padding: '2px 6px',
-                                        fontSize: '9px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                    className="btn-active-scale"
-                                >
-                                    공유
-                                </button>
-                            </div>
+                            <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em', marginBottom: '6px' }}>SONG INFO</div>
+
                             {currentInfo.description}
                         </div>
                     )}
