@@ -30,7 +30,7 @@ const EmojiParticle = ({ emoji, style }) => (
         position: 'fixed',
         fontSize: '2rem',
         pointerEvents: 'none',
-        zIndex: 1002,
+        zIndex: 3002,
         ...style
     }}>
         {emoji}
@@ -551,7 +551,7 @@ const Gallery = () => {
                         background: 'rgba(0, 0, 0, 0.5)',
                         padding: '6px 12px',
                         borderRadius: '20px',
-                        zIndex: 1001
+                        zIndex: 3001
                     }}>
                         {getCurrentIndex() + 1} / {assets.length}
                     </div>

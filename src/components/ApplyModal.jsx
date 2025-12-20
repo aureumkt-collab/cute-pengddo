@@ -70,7 +70,7 @@ const ApplyModal = ({ onClose, onAgree }) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000,
+            zIndex: 3000,
             animation: 'fadeIn 0.3s ease-out',
             padding: '20px'
         }}
@@ -272,7 +272,7 @@ const ApplyModal = ({ onClose, onAgree }) => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        zIndex: 1100,
+                        zIndex: 3100,
                         animation: 'fadeIn 0.3s ease-out'
                     }}
                     onClick={(e) => {

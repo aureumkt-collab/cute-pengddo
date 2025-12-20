@@ -5,12 +5,14 @@ import { useMusic } from '../context/MusicContext';
 const MusicPlayer = ({ variant = 'fixed' }) => {
     const {
         isPlaying,
+        setIsPlaying,
         togglePlay,
         skipToNextTrack,
         skipToPrevTrack,
         showLyrics,
         setShowLyrics,
         trackIndex,
+        setTrackIndex,
         isShuffle,
         setIsShuffle,
         currentTime,
@@ -19,6 +21,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
     } = useMusic();
 
     const [isDragging, setIsDragging] = useState(false);
+    const [showPlaylist, setShowPlaylist] = useState(false);
     const progressBarRef = useRef(null);
 
     const formatTime = (time) => {
@@ -507,7 +510,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 position: 'relative',
                 zIndex: 10,
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                maxHeight: showLyrics ? '600px' : '260px',
+                maxHeight: (showLyrics || showPlaylist) ? '750px' : '260px',
                 overflow: 'hidden'
             }} onMouseOver={(e) => {
                 if (!showLyrics) e.currentTarget.style.transform = 'translateY(-2px)';
@@ -515,6 +518,38 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 onMouseOut={(e) => {
                     if (!showLyrics) e.currentTarget.style.transform = 'translateY(0)';
                 }}>
+                {/* Playlist Button */}
+                <button
+                    onClick={() => {
+                        setShowPlaylist(!showPlaylist);
+                        if (!showPlaylist) setShowLyrics(false);
+                    }}
+                    style={{
+                        position: 'absolute',
+                        top: '16px',
+                        right: '16px',
+                        background: 'transparent',
+                        border: 'none',
+                        color: showPlaylist ? '#F472B6' : 'rgba(255, 255, 255, 0.4)',
+                        padding: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        borderRadius: '10px',
+                        zIndex: 20
+                    }}
+                    className="btn-hover-bg btn-active-scale"
+                    title="재생목록"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <circle cx="3" cy="6" r="1" fill="currentColor"></circle>
+                        <circle cx="3" cy="12" r="1" fill="currentColor"></circle>
+                        <circle cx="3" cy="18" r="1" fill="currentColor"></circle>
+                    </svg>
+                </button>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px' }}>
                     {/* Album Art */}
                     <div style={{
@@ -604,7 +639,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 {/* Controls */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '0 8px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button onClick={() => setShowLyrics(!showLyrics)} style={{
+                        <button onClick={() => { setShowLyrics(!showLyrics); if (!showLyrics) setShowPlaylist(false); }} style={{
                             background: 'transparent',
                             border: 'none',
                             color: showLyrics ? '#F472B6' : 'rgba(255, 255, 255, 0.4)',
@@ -744,7 +779,82 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     ))}
                 </div>
 
+                {/* Playlist Section (Hero) */}
+                <div style={{
+                    maxHeight: showPlaylist ? '550px' : '0px',
+                    opacity: showPlaylist ? 1 : 0,
+                    transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflowY: 'auto',
+                    marginTop: showPlaylist ? '16px' : '0px',
+                    paddingTop: showPlaylist ? '16px' : '0px',
+                    borderTop: showPlaylist ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                    scrollbarWidth: 'none'
+                }} className="playlist-container">
+                    <style>{`
+                        .playlist-container::-webkit-scrollbar { display: none; }
+                    `}</style>
+                    <div style={{ color: '#F472B6', fontWeight: 'bold', marginBottom: '16px', fontSize: '11px', letterSpacing: '0.05em', textAlign: 'center' }}>PLAYLIST</div>
+                    {trackInfo.map((track, index) => (
+                        <div
+                            key={index}
+                            onClick={() => {
+                                setTrackIndex(index);
+                                setIsPlaying(true);
+                            }}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '10px 12px',
+                                borderRadius: '12px',
+                                cursor: 'pointer',
+                                background: trackIndex === index ? 'rgba(244, 114, 182, 0.1)' : 'transparent',
+                                transition: 'all 0.2s',
+                                marginBottom: '4px',
+                                border: trackIndex === index ? '1px solid rgba(244, 114, 182, 0.2)' : '1px solid transparent'
+                            }}
+                            className="btn-hover-bg"
+                        >
+                            <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden' }}>
+                                <img src={track.cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    color: trackIndex === index ? '#F472B6' : '#fff',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {track.title}
+                                </div>
+                                <div style={{
+                                    fontSize: '12px',
+                                    color: 'rgba(255, 255, 255, 0.4)',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                }}>
+                                    {track.artist}
+                                </div>
+                            </div>
+                            {trackIndex === index && isPlaying && (
+                                <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px' }}>
+                                    <div style={{ width: '2px', height: '100%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.8s ease-in-out infinite alternate' }} />
+                                    <div style={{ width: '2px', height: '60%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.5s ease-in-out infinite alternate-reverse' }} />
+                                    <div style={{ width: '2px', height: '80%', background: '#F472B6', borderRadius: '1px', animation: 'musicBar 0.7s ease-in-out infinite alternate' }} />
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
                 <style>{`
+    @keyframes musicBar {
+        from { height: 20%; }
+        to { height: 100%; }
+    }
     @keyframes rotateArt {
                         from { transform: rotate(0deg); }
                         to { transform: rotate(360deg); }
@@ -770,8 +880,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
             transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            maxHeight: showLyrics ? '400px' : '88px',
-            width: '200px',
+            maxHeight: (showLyrics || showPlaylist) ? '550px' : '88px',
+            width: '220px',
             overflow: 'hidden'
         }}>
             {/* Progress Bar (Floating) */}
@@ -842,16 +952,33 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 <div style={{ fontSize: '11px', fontWeight: '600', color: 'white', opacity: 0.8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80px' }}>
                     {currentInfo.title}
                 </div>
-                <button onClick={() => setShowLyrics(!showLyrics)} style={{
+                <button onClick={() => { setShowLyrics(!showLyrics); if (!showLyrics) setShowPlaylist(false); }} style={{
                     background: 'transparent',
                     border: 'none',
                     color: showLyrics ? '#F472B6' : 'white',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    padding: '4px'
                 }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
                         <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                </button>
+                <button onClick={() => { setShowPlaylist(!showPlaylist); if (!showPlaylist) setShowLyrics(false); }} style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: showPlaylist ? '#F472B6' : 'white',
+                    cursor: 'pointer',
+                    padding: '4px'
+                }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <circle cx="3" cy="6" r="1" fill="currentColor"></circle>
+                        <circle cx="3" cy="12" r="1" fill="currentColor"></circle>
+                        <circle cx="3" cy="18" r="1" fill="currentColor"></circle>
                     </svg>
                 </button>
             </div>
@@ -891,6 +1018,59 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         fontWeight: line.trim().startsWith('[') ? '600' : '400',
                         textAlign: 'center'
                     }}>{line.trim()}</div>
+                ))}
+            </div>
+
+            {/* Playlist Section (Floating) */}
+            <div style={{
+                maxHeight: showPlaylist ? '450px' : '0px',
+                opacity: showPlaylist ? 1 : 0,
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                overflowY: 'auto',
+                marginTop: showPlaylist ? '8px' : '0px',
+                paddingTop: showPlaylist ? '12px' : '0px',
+                borderTop: showPlaylist ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                scrollbarWidth: 'none'
+            }} className="playlist-container-fixed">
+                <style>{`
+                    .playlist-container-fixed::-webkit-scrollbar { display: none; }
+                `}</style>
+                {trackInfo.map((track, index) => (
+                    <div
+                        key={index}
+                        onClick={() => {
+                            setTrackIndex(index);
+                            setIsPlaying(true);
+                        }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                            padding: '8px',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            background: trackIndex === index ? 'rgba(244, 114, 182, 0.1)' : 'transparent',
+                            transition: 'all 0.2s',
+                            marginBottom: '2px'
+                        }}
+                        className="btn-hover-bg"
+                    >
+                        <div style={{ width: '28px', height: '28px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
+                            <img src={track.cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                color: trackIndex === index ? '#F472B6' : '#fff',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis'
+                            }}>
+                                {track.title}
+                            </div>
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>

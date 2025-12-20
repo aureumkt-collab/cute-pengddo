@@ -190,7 +190,7 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 3000;
   animation: fadeIn 0.3s ease-out;
   cursor: zoom-out;
 }
@@ -227,7 +227,7 @@ button {
   align-items: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 1001;
+  z-index: 3001;
 }
 
 .modal-close:hover {
