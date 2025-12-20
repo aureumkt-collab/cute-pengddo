@@ -2,12 +2,25 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 const MusicContext = createContext();
 
-const playlist = ['/bgm.mp3', '/bgm2.mp3', '/flight_of_500won_v4.mp3', '/gift_from_blue_ice_v1.mp3', '/fight_scat_v1.mp3'];
+import { trackInfo } from '../data/tracks';
+
+const playlist = trackInfo.map(track => track.audio);
 
 export const MusicProvider = ({ children }) => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [trackIndex, setTrackIndex] = useState(0);
-    const [showLyrics, setShowLyrics] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        return params.has('song');
+    });
+    const [trackIndex, setTrackIndex] = useState(() => {
+        const params = new URLSearchParams(window.location.search);
+        const songId = params.get('song');
+        if (songId) {
+            const index = trackInfo.findIndex(t => t.id === songId);
+            if (index !== -1) return index;
+        }
+        return 0;
+    });
+    const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [volume, setVolume] = useState(0.3);
     const [isShuffle, setIsShuffle] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -52,10 +65,16 @@ export const MusicProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        if (audioRef.current && isPlaying) {
-            audioRef.current.play().catch(e => console.log("Play failed", e));
+        if (audioRef.current) {
+            if (isPlaying) {
+                audioRef.current.play().catch(e => {
+                    console.log("Play blocked or failed", e);
+                });
+            } else {
+                audioRef.current.pause();
+            }
         }
-    }, [trackIndex]);
+    }, [isPlaying, trackIndex]);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -64,46 +83,33 @@ export const MusicProvider = ({ children }) => {
         audio.volume = volume;
 
         const handleCanPlay = () => {
-            if (isPlaying) audio.play().catch(e => console.log("Autoplay blocked"));
+            if (isPlaying && audioRef.current?.paused) {
+                audioRef.current.play().catch(() => { });
+            }
         };
+
+
 
         audio.addEventListener('ended', handleTrackEnd);
         audio.addEventListener('timeupdate', handleTimeUpdate);
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.addEventListener('canplay', handleCanPlay);
 
         return () => {
             audio.removeEventListener('ended', handleTrackEnd);
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.removeEventListener('canplay', handleCanPlay);
         };
     }, [trackIndex, isPlaying, volume, isShuffle]);
 
-    useEffect(() => {
-        const handleUserInteraction = () => {
-            if (audioRef.current && audioRef.current.paused && isPlaying) {
-                audioRef.current.play().catch(e => console.log("Play failed", e));
-            }
-            ['click', 'keydown', 'touchstart'].forEach(event =>
-                document.removeEventListener(event, handleUserInteraction)
-            );
-        };
 
-        ['click', 'keydown', 'touchstart'].forEach(event =>
-            document.addEventListener(event, handleUserInteraction)
-        );
-
-        return () => {
-            ['click', 'keydown', 'touchstart'].forEach(event =>
-                document.removeEventListener(event, handleUserInteraction)
-            );
-        };
-    }, [isPlaying]);
 
     const togglePlay = () => {
         if (audioRef.current) {
             if (isPlaying) {
                 audioRef.current.pause();
-                setShowLyrics(false);
+                setIsPanelOpen(false);
             } else {
                 audioRef.current.play().catch(e => console.log("Play failed", e));
             }
@@ -136,8 +142,8 @@ export const MusicProvider = ({ children }) => {
         setIsPlaying,
         trackIndex,
         setTrackIndex,
-        showLyrics,
-        setShowLyrics,
+        isPanelOpen,
+        setIsPanelOpen,
         isShuffle,
         setIsShuffle,
         togglePlay,
