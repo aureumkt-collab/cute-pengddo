@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { supabase } from '../supabaseClient';
 
 const ApplyForm = ({ onClose }) => {
     const [formData, setFormData] = useState({
@@ -9,6 +10,7 @@ const ApplyForm = ({ onClose }) => {
         promise: ''
     });
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData(prev => ({
@@ -17,9 +19,31 @@ const ApplyForm = ({ onClose }) => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitted(true);
+        setLoading(true);
+
+        try {
+            const { error } = await supabase
+                .from('applicants')
+                .insert([
+                    {
+                        name: formData.name,
+                        nickname: formData.nickname,
+                        love_level: formData.loveLevel,
+                        reason: formData.reason,
+                        promise: formData.promise
+                    }
+                ]);
+
+            if (error) throw error;
+            setSubmitted(true);
+        } catch (error) {
+            console.error('Error submitting application:', error.message);
+            alert('지원서 제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (submitted) {
@@ -257,6 +281,7 @@ const ApplyForm = ({ onClose }) => {
                         </button>
                         <button
                             type="submit"
+                            disabled={loading}
                             style={{
                                 flex: 2,
                                 padding: '14px',
@@ -266,20 +291,25 @@ const ApplyForm = ({ onClose }) => {
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '12px',
-                                cursor: 'pointer',
+                                cursor: loading ? 'not-allowed' : 'pointer',
                                 transition: 'all 0.3s ease',
-                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)'
+                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.4)',
+                                opacity: loading ? 0.7 : 1
                             }}
                             onMouseOver={(e) => {
-                                e.target.style.transform = 'translateY(-2px)';
-                                e.target.style.boxShadow = '0 6px 25px rgba(139, 92, 246, 0.5)';
+                                if (!loading) {
+                                    e.target.style.transform = 'translateY(-2px)';
+                                    e.target.style.boxShadow = '0 6px 25px rgba(139, 92, 246, 0.5)';
+                                }
                             }}
                             onMouseOut={(e) => {
-                                e.target.style.transform = 'translateY(0)';
-                                e.target.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4)';
+                                if (!loading) {
+                                    e.target.style.transform = 'translateY(0)';
+                                    e.target.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4)';
+                                }
                             }}
                         >
-                            🐧 지원하기
+                            {loading ? '🐧 제출 중...' : '🐧 지원하기'}
                         </button>
                     </div>
                 </form>
