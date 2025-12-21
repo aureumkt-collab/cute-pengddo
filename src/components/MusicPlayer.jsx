@@ -114,33 +114,10 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5)',
                 transition: 'all 0.3s ease',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                width: 'min(90vw, 400px)',
+                justifyContent: 'space-between'
             }} className="mini-player-container">
-                {/* Top Right Share Button (Mini) */}
-                <button
-                    onClick={handleShare}
-                    style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '10px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'rgba(255, 255, 255, 0.3)',
-                        padding: '4px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        borderRadius: '6px',
-                        zIndex: 20
-                    }}
-                    className="btn-hover-bg btn-active-scale"
-                    title="공유하기"
-                >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                        <polyline points="16 6 12 2 8 6"></polyline>
-                        <line x1="12" y1="2" x2="12" y2="15"></line>
-                    </svg>
-                </button>
                 {/* Title and Info */}
                 <div style={{
                     display: 'flex',
@@ -219,90 +196,97 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 </div>
 
-                {/* Back */}
-                <button onClick={skipToPrevTrack} style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'white',
-                    padding: '8px',
-                    cursor: 'pointer',
+                {/* Controls Group */}
+                <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s',
-                    opacity: 0.8
-                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
-                    </svg>
-                </button>
-
-                {/* Play/Pause */}
-                <button onClick={togglePlay} style={{
-                    background: 'white',
-                    border: 'none',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    color: '#1c1c1e',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
-                }} className="btn-hover-scale btn-active-scale">
-                    {isPlaying ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                            <rect x="6" y="4" width="4" height="16" rx="1" />
-                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                    gap: '2px'
+                }}>
+                    {/* Back */}
+                    <button onClick={skipToPrevTrack} style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        padding: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        opacity: 0.8
+                    }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
                         </svg>
-                    ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8 5v14l11-7z" />
+                    </button>
+
+                    {/* Play/Pause */}
+                    <button onClick={togglePlay} style={{
+                        background: 'white',
+                        border: 'none',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        color: '#1c1c1e',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
+                    }} className="btn-hover-scale btn-active-scale">
+                        {isPlaying ? (
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="4" width="4" height="16" rx="1" />
+                                <rect x="14" y="4" width="4" height="16" rx="1" />
+                            </svg>
+                        ) : (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        )}
+                    </button>
+
+                    {/* Forward */}
+                    <button onClick={skipToNextTrack} style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'white',
+                        padding: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        opacity: 0.8
+                    }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                         </svg>
-                    )}
-                </button>
+                    </button>
 
-                {/* Forward */}
-                <button onClick={skipToNextTrack} style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'white',
-                    padding: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s',
-                    opacity: 0.8
-                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-                    </svg>
-                </button>
-
-                {/* Shuffle */}
-                <button onClick={() => setIsShuffle(!isShuffle)} style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: isShuffle ? '#F472B6' : 'white',
-                    padding: '8px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s',
-                    opacity: isShuffle ? 1 : 0.6
-                }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="16 3 21 3 21 8"></polyline>
-                        <line x1="4" y1="20" x2="21" y2="3"></line>
-                        <polyline points="21 16 21 21 16 21"></polyline>
-                        <line x1="15" y1="15" x2="21" y2="21"></line>
-                        <line x1="4" y1="4" x2="9" y2="9"></line>
-                    </svg>
-                </button>
+                    {/* Shuffle */}
+                    <button onClick={() => setIsShuffle(!isShuffle)} style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: isShuffle ? '#F472B6' : 'white',
+                        padding: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        opacity: isShuffle ? 1 : 0.6
+                    }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="16 3 21 3 21 8"></polyline>
+                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                            <polyline points="21 16 21 21 16 21"></polyline>
+                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
         );
@@ -715,31 +699,6 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             width: '220px',
             overflow: 'hidden'
         }}>
-            {/* Top Right Share Button (Floating) */}
-            <button
-                onClick={handleShare}
-                style={{
-                    position: 'absolute',
-                    top: '12px',
-                    right: '12px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'rgba(255, 255, 255, 0.4)',
-                    padding: '4px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    borderRadius: '8px',
-                    zIndex: 20
-                }}
-                className="btn-hover-bg btn-active-scale"
-                title="공유하기"
-            >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 6 12 2 8 6"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                </svg>
-            </button>
             {/* Progress Bar (Floating) */}
             <div
                 ref={variant === 'fixed' || !variant ? progressBarRef : null}

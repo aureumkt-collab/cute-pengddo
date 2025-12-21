@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import assets from '../assets.json';
+import GwiyeomMall from './GwiyeomMall';
 
 const EMOJIS = ['🐧', '💜', '✨', '💕', '🌟', '❄️', '💙', '🎀', '🦋', '🌸'];
 
@@ -28,7 +29,7 @@ const setImageToURL = (filename, replace = false) => {
 const EmojiParticle = ({ emoji, style }) => (
     <div style={{
         position: 'fixed',
-        fontSize: '2rem',
+        fontSize: '1.5rem',
         pointerEvents: 'none',
         zIndex: 3002,
         ...style
@@ -38,6 +39,9 @@ const EmojiParticle = ({ emoji, style }) => (
 );
 
 const Gallery = () => {
+    const [activeTab, setActiveTab] = useState('activity'); // 'activity' or 'mall'
+
+    // ... existing states and functions ...
     const [selectedImage, setSelectedImage] = useState(() => getImageFromURL());
     const [particles, setParticles] = useState([]);
     const [swipeOffset, setSwipeOffset] = useState(0);
@@ -48,6 +52,99 @@ const Gallery = () => {
     const touchStartY = useRef(0);
     const touchCurrentY = useRef(0);
     const isDragging = useRef(false);
+
+    // 몰 관련 가상 데이터 (갤러리 자산 및 생성된 굿즈 이미지 기반)
+    const mallItems = [
+        {
+            id: 11,
+            name: "펭뚜와 친구들 리얼 피규어세트",
+            price: "450수당",
+            image: "goods/1757692300758.jpg",
+            tag: "NEW",
+            desc: "펭뚜와 친구들이 모두 모였다! 귀염부서의 정수가 담긴 고퀄리티 리얼 피규어 세트입니다."
+        },
+        {
+            id: 12,
+            name: "엄마와 펭뚜 리얼 피규어(조명 미포함)",
+            price: "320수당",
+            image: "goods/1757681782472.jpg",
+            tag: "HOT",
+            desc: "포근한 모성애가 느껴지는 엄마와 펭뚜의 소중한 순간을 담은 리얼 피규어입니다."
+        },
+        {
+            id: 13,
+            name: "우주에서 응원하기 귀염부서 포스터",
+            price: "120수당",
+            image: "goods/1757084865559.jpg",
+            tag: "NEW",
+            desc: "우주 멀리서도 귀염부서가 당신을 응원합니다! 우주 진출기념 귀염부서 공식 포스터입니다."
+        },
+        {
+            id: 9,
+            name: "소수 전용 프리미엄 핑크 헤드셋",
+            price: "150수당",
+            image: "penguin_headset.jpg",
+            tag: "HOT",
+            desc: "귀가 시린 소수들을 위한 필수 아이템! 부드러운 핑크 컬러와 포근한 착용감을 자랑하는 전용 헤드셋입니다. 귀여운 음악이 흐릅니다."
+        },
+        {
+            id: 0,
+            name: "빙하위 펭귄 3D리얼 피규어",
+            price: "400수당",
+            image: "penguin_ice_figure.png",
+            tag: "NEW",
+            desc: "차가운 빙하 위에서도 따뜻한 미소를 잃지 않는 펭귄! 신비로운 반사광이 매력적인 프리미엄 3D 피규어입니다. 세워놓으면 집안이 후끈해집니다."
+        },
+        {
+            id: 1,
+            name: "귀염부서 공식 펭뚜 머그컵",
+            price: "250수당",
+            image: "pengddo_mugcup.png",
+            tag: "BEST",
+            desc: "귀여운 펭뚜 매니저의 얼굴이 그대로! 세상을 구하는 귀여움이 담긴 프리미엄 머그컵입니다. 모든 음료가 요쿠르트로 변하는 부작용이 있으니 됴심합니다."
+        },
+        {
+            id: 2,
+            name: "노란 츄리닝 펭뚜 아크릴 키링",
+            price: "180수당",
+            image: "pengddo_keyring.png",
+            tag: "HOT",
+            desc: "노란 츄리닝을 입은 펭뚜 인형의 모습이 쏙! 어디든 달고 다닐 수 있는 고퀄리티 아크릴 키링입니다. 근방의 모든사람들이 힘을 얻습니다."
+        },
+        {
+            id: 3,
+            name: "말랑말랑 펭뚜 스티커 팩",
+            price: "50수당",
+            image: "pengddo_sticker.png",
+            tag: "NEW",
+            desc: "다양한 표정의 펭뚜를 스티커로 만나보세요. 다꾸(다이어리 꾸미기) 필수 아이템!"
+        },
+
+        {
+            id: 7,
+            name: "드라이브 펭뚜 리얼 피규어",
+            price: "380수당",
+            image: "pengddo_figure.png",
+            tag: "HOT",
+            desc: "귀염부서가 출장을 갈 때 타는 리얼 카트 한정판 피규어 입니다!!"
+        },
+        {
+            id: 10,
+            name: "귀염부서 공식 털 보자기",
+            price: "500수당",
+            image: "furry_bojagi_logo.png",
+            tag: "NEW",
+            desc: "보들보들한 털로 제작된 귀염부서 리미티드 에디션 보자기입니다. 귀여운 꿈을 꿀 수 있고 귀염부서 로고가 정성스럽게 새겨져 있어 품격을 더합니다."
+        },
+        {
+            id: 8,
+            name: "펭뚜가 입던 노란 츄리닝",
+            price: "400수당",
+            image: "20241230_200712.jpg",
+            tag: "BEST",
+            desc: "입고 잠들면 나도 슈퍼스타!"
+        }
+    ];
 
     // 현재 이미지 인덱스 가져오기
     const getCurrentIndex = useCallback(() => {
@@ -283,117 +380,153 @@ const Gallery = () => {
             `}</style>
 
             <section id="gallery" className="section-padding" style={{
-                background: 'var(--color-surface)'
+                background: 'var(--color-surface)',
+                position: 'relative'
             }}>
                 <div className="container">
-                    <h2 style={{
-                        textAlign: 'center',
-                        fontSize: '2.5rem',
-                        fontWeight: '700',
-                        marginBottom: '16px',
-                        background: 'var(--gradient-primary)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                    }}>
-                        펭뚜 놀이터
-                    </h2>
-                    <p style={{
-                        textAlign: 'center',
-                        color: 'var(--color-text-muted)',
-                        marginBottom: '48px'
-                    }}>
-                        클릭하여 귀여움 극대화
-                    </p>
-
+                    {/* Category Tabs */}
                     <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                        gap: '24px'
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '12px',
+                        marginBottom: '48px',
+                        animation: 'fadeIn 0.8s ease-out'
                     }}>
-                        {assets.map((filename, index) => (
-                            <div
-                                key={index}
+                        {[
+                            { id: 'activity', label: '활동 기록', emoji: '📸' },
+                            { id: 'mall', label: '귀염몰', emoji: '🛍️' }
+                        ].map(tab => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
                                 style={{
-                                    borderRadius: '16px',
-                                    overflow: 'hidden',
-                                    background: 'var(--color-surface-light)',
-                                    border: '1px solid var(--color-border)',
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    padding: '12px 32px',
+                                    borderRadius: '30px',
+                                    border: '2px solid',
+                                    borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
+                                    background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                    color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                    fontSize: '1.1rem',
+                                    fontWeight: '700',
                                     cursor: 'pointer',
-                                    animation: `slideUp 0.6s ease-out ${index * 0.05}s both`
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    boxShadow: activeTab === tab.id ? '0 10px 20px rgba(139, 92, 246, 0.15)' : 'none',
+                                    transform: activeTab === tab.id ? 'scale(1.05)' : 'scale(1)'
                                 }}
-                                onClick={(e) => openModal(filename, e)}
                                 onMouseOver={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-8px)';
-                                    e.currentTarget.style.boxShadow = '0 20px 40px rgba(139, 92, 246, 0.2)';
-                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                    if (activeTab !== tab.id) {
+                                        e.currentTarget.style.borderColor = 'var(--color-primary-light)';
+                                        e.currentTarget.style.color = 'var(--color-primary-light)';
+                                    }
                                 }}
                                 onMouseOut={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                                    if (activeTab !== tab.id) {
+                                        e.currentTarget.style.borderColor = 'var(--color-border)';
+                                        e.currentTarget.style.color = 'var(--color-text-muted)';
+                                    }
                                 }}
                             >
-                                <div style={{
-                                    width: '100%',
-                                    paddingTop: '100%',
-                                    position: 'relative',
-                                    overflow: 'hidden'
-                                }}>
-                                    <img
-                                        src={`/assets/${filename}`}
-                                        alt={`Gallery item ${index + 1}`}
-                                        loading="lazy"
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'cover',
-                                            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                                        }}
-                                        onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
-                                        onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
-                                    />
-                                    {/* 순서 표시 */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: '12px',
-                                        left: '12px',
-                                        background: 'rgba(0, 0, 0, 0.5)',
-                                        backdropFilter: 'blur(4px)',
-                                        color: 'white',
-                                        padding: '4px 10px',
-                                        borderRadius: '20px',
-                                        fontSize: '0.85rem',
-                                        fontWeight: '600',
-                                        zIndex: 1,
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                        pointerEvents: 'none'
-                                    }}>
-                                        {index + 1}
-                                    </div>
-                                    {/* 해시태그 오버레이 */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        padding: '24px 12px 10px',
-                                        background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)',
-                                        color: 'white',
-                                        fontSize: '0.75rem',
-                                        fontWeight: '500',
-                                        letterSpacing: '0.02em'
-                                    }}>
-                                        {HASHTAGS[filename] || '#펭뚜 #귀여움'}
-                                    </div>
-                                </div>
-                            </div>
+                                <span>{tab.emoji}</span>
+                                {tab.label}
+                            </button>
                         ))}
                     </div>
+
+                    {activeTab === 'activity' ? (
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gap: '24px'
+                        }}>
+                            {assets.map((filename, index) => (
+                                <div
+                                    key={index}
+                                    style={{
+                                        borderRadius: '16px',
+                                        overflow: 'hidden',
+                                        background: 'var(--color-surface-light)',
+                                        border: '1px solid var(--color-border)',
+                                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        cursor: 'pointer',
+                                        animation: `slideUp 0.6s ease-out ${index * 0.05}s both`
+                                    }}
+                                    onClick={(e) => openModal(filename, e)}
+                                    onMouseOver={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(-8px)';
+                                        e.currentTarget.style.boxShadow = '0 20px 40px rgba(139, 92, 246, 0.2)';
+                                        e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                        e.currentTarget.style.borderColor = 'var(--color-border)';
+                                    }}
+                                >
+                                    <div style={{
+                                        width: '100%',
+                                        paddingTop: '100%',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}>
+                                        <img
+                                            src={`/assets/${filename}`}
+                                            alt={`Gallery item ${index + 1}`}
+                                            loading="lazy"
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                                            }}
+                                            onMouseOver={(e) => e.target.style.transform = 'scale(1.1)'}
+                                            onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                        />
+                                        {/* 순서 표시 */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '12px',
+                                            left: '12px',
+                                            background: 'rgba(0, 0, 0, 0.5)',
+                                            backdropFilter: 'blur(4px)',
+                                            color: 'white',
+                                            padding: '4px 10px',
+                                            borderRadius: '20px',
+                                            fontSize: '0.85rem',
+                                            fontWeight: '600',
+                                            zIndex: 1,
+                                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                                            pointerEvents: 'none'
+                                        }}>
+                                            {index + 1}
+                                        </div>
+                                        {/* 해시태그 오버레이 */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            padding: '24px 12px 10px',
+                                            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)',
+                                            color: 'white',
+                                            fontSize: '0.75rem',
+                                            fontWeight: '500',
+                                            letterSpacing: '0.02em'
+                                        }}>
+                                            {HASHTAGS[filename] || '#펭뚜 #귀여움'}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <GwiyeomMall mallItems={mallItems} />
+                    )}
 
                     {/* YouTube Section */}
                     <div style={{

@@ -12,7 +12,7 @@ const Footer = () => {
         }}>
             <div className="container">
                 <p style={{ fontSize: '0.9rem' }}>
-                    © 2025 귀염부서 펭뚜. All rights reserved.
+                    © 2025 {document.body.classList.contains('christmas-theme') ? '❄️ 펭뚜마스' : '귀염부서 펭뚜'}. All rights reserved.
                 </p>
                 <p style={{
                     fontSize: '0.8rem',

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import BubbleParticles from './BubbleParticles';
+import SnowParticles from './SnowParticles';
+import ChristmasTree from './ChristmasTree';
 import assets from '../assets.json';
 import MusicPlayer from './MusicPlayer';
 
@@ -60,6 +62,17 @@ const Hero = () => {
 
     const [showMini, setShowMini] = useState(false);
     const playerRef = useRef(null);
+    const [isChristmas, setIsChristmas] = useState(false);
+
+    useEffect(() => {
+        const checkIsChristmas = () => {
+            const now = new Date();
+            const month = now.getMonth() + 1;
+            const date = now.getDate();
+            return month === 12 && date >= 22 && date <= 25;
+        };
+        setIsChristmas(checkIsChristmas());
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -131,8 +144,8 @@ const Hero = () => {
                 }
             `}</style>
 
-            {/* Bubble Particles Background */}
-            <BubbleParticles />
+            {/* Seasonal Particles Background */}
+            {isChristmas ? <SnowParticles /> : <BubbleParticles />}
 
             {/* Background glow effects */}
             <div style={{
@@ -182,28 +195,47 @@ const Hero = () => {
                         );
                     })}
 
-                    <div
-                        className={`hero-image-container ${isAnimating ? 'hero-image-animating' : ''}`}
-                        style={{
+                    {isChristmas ? (
+                        /* 크리스마스 트리 */
+                        <div style={{
                             width: '180px',
                             height: '180px',
-                            margin: '0 auto 40px',
-                            borderRadius: '50%',
-                            overflow: 'hidden',
-                            border: '3px solid rgba(139, 92, 246, 0.5)',
-                            boxShadow: '0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(236, 72, 153, 0.2)'
-                        }}
-                    >
-                        <img
-                            src={`/assets/${currentImage}`}
-                            alt="Pengddo Profile"
+                            marginTop: '-40px',
+                            marginBottom: '60px',
+                            marginLeft: 'auto',
+                            marginRight: 'auto',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.4)) drop-shadow(0 0 40px rgba(255, 0, 0, 0.2))'
+                        }}>
+                            <ChristmasTree />
+                        </div>
+                    ) : (
+                        /* 일반 펭도 이미지 */
+                        <div
+                            className={`hero-image-container ${isAnimating ? 'hero-image-animating' : ''}`}
                             style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover'
+                                width: '180px',
+                                height: '180px',
+                                margin: '0 auto 40px',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                border: '3px solid rgba(139, 92, 246, 0.5)',
+                                boxShadow: '0 0 40px rgba(139, 92, 246, 0.3), 0 0 80px rgba(236, 72, 153, 0.2)'
                             }}
-                        />
-                    </div>
+                        >
+                            <img
+                                src={`/assets/${currentImage}`}
+                                alt="Pengddo Profile"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <div ref={playerRef}>
@@ -211,7 +243,7 @@ const Hero = () => {
                 </div>
 
                 <h1 style={{
-                    fontSize: '3.5rem',
+                    fontSize: '2.8rem',
                     fontWeight: '700',
                     marginBottom: '16px',
                     background: 'var(--gradient-primary)',
@@ -219,17 +251,17 @@ const Hero = () => {
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text'
                 }}>
-                    펭뚜 놀이터
+                    귀염부서 놀이터
                 </h1>
 
                 <p style={{
-                    fontSize: '1.25rem',
+                    fontSize: '1.1rem',
                     color: 'var(--color-text-muted)',
                     maxWidth: '500px',
                     margin: '0 auto 48px',
                     lineHeight: '1.8'
                 }}>
-                    귀여운 순간들을 담은 특별한 공간
+                    세상에 귀여움을 전파하는 공간
                 </p>
 
                 <button
@@ -265,8 +297,8 @@ const Hero = () => {
                 zIndex: 2200,
                 opacity: showMini ? 1 : 0,
                 visibility: showMini ? 'visible' : 'hidden',
-                transform: `translateX(-50%) translateY(${showMini ? '0' : '20px'})`,
-                transition: 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: `translateX(-50%) translateY(${showMini ? '0' : '100px'})`,
+                transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
                 pointerEvents: showMini ? 'auto' : 'none'
             }}>
                 <MusicPlayer variant="mini" />

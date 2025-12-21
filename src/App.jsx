@@ -30,6 +30,14 @@ const setViewToURL = (view, replace = false) => {
 import MusicPlayer from './components/MusicPlayer';
 import { MusicProvider } from './context/MusicContext';
 
+// 크리스마스 기간 확인 (12월 22일 ~ 12월 25일)
+const checkIsChristmas = () => {
+  const now = new Date();
+  const month = now.getMonth() + 1; // 0-indexed
+  const date = now.getDate();
+  return month === 12 && date >= 22 && date <= 25;
+};
+
 function App() {
   const [currentView, setCurrentView] = useState(() => getViewFromURL());
 
@@ -42,6 +50,15 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // 크리스마스 테마 적용
+  useEffect(() => {
+    if (checkIsChristmas()) {
+      document.body.classList.add('christmas-theme');
+    } else {
+      document.body.classList.remove('christmas-theme');
+    }
   }, []);
 
   // 지원하기 버튼 클릭 - 약관 모달 열기

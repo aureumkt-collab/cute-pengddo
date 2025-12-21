@@ -30,7 +30,7 @@ const Header = ({ onApplyClick }) => {
                     backgroundClip: 'text',
                     cursor: 'pointer'
                 }}
-                    onClick={() => window.location.reload()}
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                     <div style={{
                         width: '40px',
@@ -50,7 +50,7 @@ const Header = ({ onApplyClick }) => {
                             }}
                         />
                     </div>
-                    귀염부서 펭뚜
+                    {document.body.classList.contains('christmas-theme') ? '🎄 펭뚜마스' : '귀염부서'}
                 </div>
                 <nav>
                     <ul style={{
@@ -82,7 +82,7 @@ const Header = ({ onApplyClick }) => {
                                     e.target.style.boxShadow = '0 4px 15px rgba(139, 92, 246, 0.3)';
                                 }}
                             >
-                                귀염부서 지원
+                                입사지원
                             </button>
                         </li>
                     </ul>
