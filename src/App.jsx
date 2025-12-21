@@ -4,6 +4,9 @@ import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import ApplyModal from './components/ApplyModal';
 import ApplyForm from './components/ApplyForm';
+import WelcomeChat from './components/WelcomeChat';
+import MusicPlayer from './components/MusicPlayer';
+import { MusicProvider } from './context/MusicContext';
 
 // URL에서 view 파라미터 읽기
 const getViewFromURL = () => {
@@ -26,9 +29,6 @@ const setViewToURL = (view, replace = false) => {
     window.history.pushState({ view }, '', url.toString());
   }
 };
-
-import MusicPlayer from './components/MusicPlayer';
-import { MusicProvider } from './context/MusicContext';
 
 // 크리스마스 기간 확인 (12월 22일 ~ 12월 25일)
 const checkIsChristmas = () => {
@@ -90,8 +90,6 @@ function App() {
   return (
     <MusicProvider>
       <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
-
-
         {showApplyForm ? (
           <ApplyForm onClose={handleCloseForm} />
         ) : (
@@ -107,6 +105,8 @@ function App() {
             onAgree={handleAgreeAndProceed}
           />
         )}
+
+        <WelcomeChat />
       </Layout>
     </MusicProvider>
   );
