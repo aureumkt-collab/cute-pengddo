@@ -16,8 +16,8 @@ const messageGroups = [
     },
     {
         id: 'follow-up',
-        groupDelay: 1000, // 첫 그룹이 사라진 후 30초 후에 나타남
-        displayDuration: 8000,
+        groupDelay: 30000, // 첫 그룹이 사라진 후 30초 후에 나타남
+        displayDuration: 5000,
         messages: [
             { sender: '헤펭이', text: '매니저님!', type: 'hepeng', delay: 1000 },
             { sender: '헤펭이', text: '아직도 누가 있어요!', type: 'hepeng', delay: 1000 },

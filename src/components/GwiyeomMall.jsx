@@ -7,7 +7,7 @@ const GwiyeomMall = ({ mallItems }) => {
 
     const handleClick = (e) => {
         e.stopPropagation();
-        alert('준비중입니다. ✨');
+        alert('수당이 부족해요! ✨');
     };
 
     return (
@@ -34,6 +34,9 @@ const GwiyeomMall = ({ mallItems }) => {
                 }}>
                     귀염부서에서 운영하는 공식 쇼핑몰입니다.
                     응원을 통해 귀염수당 적립 시 구매하실 수 있습니다.
+                    <div style={{ color: '#f59e0b', fontWeight: '700', marginTop: '8px' }}>
+                        배송혜택 : *귀염부서 카트로 직접 문앞까지 배송 후 펭뚜와 헤펭이가 초인종을 누르고 서 있습니다.
+                    </div>
                 </p>
             </div>
 

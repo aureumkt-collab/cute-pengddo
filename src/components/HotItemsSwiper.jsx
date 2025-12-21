@@ -9,7 +9,7 @@ import 'swiper/css/navigation';
 
 const HotItemsSwiper = ({ items }) => {
     const handleClick = () => {
-        alert('준비중입니다. ✨');
+        alert('수당이 부족해요! ✨');
     };
 
     return (
