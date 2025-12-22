@@ -5,7 +5,7 @@ import ChristmasTree from './ChristmasTree';
 import assets from '../assets.json';
 import MusicPlayer from './MusicPlayer';
 
-const Hero = () => {
+const Hero = ({ onApplyClick }) => {
     // 현재 이미지 인덱스
     const [currentIndex, setCurrentIndex] = useState(() =>
         Math.floor(Math.random() * assets.length)
@@ -284,9 +284,9 @@ const Hero = () => {
                         e.target.style.transform = 'translateY(0)';
                         e.target.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.4)';
                     }}
-                    onClick={() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' })}
+                    onClick={onApplyClick}
                 >
-                    놀이터 구경하기
+                    입사지원
                 </button>
             </div>
             {/* Mini Player */}

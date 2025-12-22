@@ -7,6 +7,9 @@ import ApplyForm from './components/ApplyForm';
 import WelcomeChat from './components/WelcomeChat';
 import MusicPlayer from './components/MusicPlayer';
 import { MusicProvider } from './context/MusicContext';
+import { AuthProvider } from './context/AuthContext';
+import Admin from './components/Admin';
+import ProductDetail from './components/ProductDetail';
 
 // URL에서 view 파라미터 읽기
 const getViewFromURL = () => {
@@ -15,18 +18,25 @@ const getViewFromURL = () => {
 };
 
 // URL에 view 파라미터 설정
-const setViewToURL = (view, replace = false) => {
+const setViewToURL = (view, params = {}, replace = false) => {
   const url = new URL(window.location.href);
   if (view) {
     url.searchParams.set('view', view);
+    // 추가 파라미터 처리
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.set(key, value);
+    });
   } else {
     url.searchParams.delete('view');
+    // 모든 검색 파라미터 삭제 (필요시)
+    const keysToDelete = Array.from(url.searchParams.keys());
+    keysToDelete.forEach(key => url.searchParams.delete(key));
   }
 
   if (replace) {
-    window.history.replaceState({ view }, '', url.toString());
+    window.history.replaceState({ view, ...params }, '', url.toString());
   } else {
-    window.history.pushState({ view }, '', url.toString());
+    window.history.pushState({ view, ...params }, '', url.toString());
   }
 };
 
@@ -86,30 +96,51 @@ function App() {
 
   const showApplyModal = currentView === 'apply-modal';
   const showApplyForm = currentView === 'apply-form';
+  const showProductDetail = currentView === 'product-detail';
+  const isAdminPath = window.location.pathname === '/admin';
+
+  // 상품 ID 추출
+  const searchParams = new URLSearchParams(window.location.search);
+  const productId = searchParams.get('id');
+
+  // 상품 상세 이동 핸들러
+  const handleProductClick = useCallback((id) => {
+    setViewToURL('product-detail', { id });
+    setCurrentView('product-detail');
+  }, []);
+
+  if (isAdminPath) {
+    return <Admin />;
+  }
 
   return (
-    <MusicProvider>
-      <Layout onApplyClick={handleApplyClick} hideHeader={showApplyForm}>
-        {showApplyForm ? (
-          <ApplyForm onClose={handleCloseForm} />
-        ) : (
-          <>
-            <Hero />
-            <Gallery />
-          </>
-        )}
+    <AuthProvider>
+      <MusicProvider>
+        <Layout hideHeader={showApplyForm || showProductDetail}>
+          {showApplyForm ? (
+            <ApplyForm onClose={handleCloseForm} />
+          ) : showProductDetail ? (
+            <ProductDetail productId={productId} onBack={handleCloseForm} />
+          ) : (
+            <>
+              <Hero onApplyClick={handleApplyClick} />
+              <Gallery onProductClick={handleProductClick} />
+            </>
+          )}
 
-        {showApplyModal && (
-          <ApplyModal
-            onClose={handleCloseModal}
-            onAgree={handleAgreeAndProceed}
-          />
-        )}
+          {showApplyModal && (
+            <ApplyModal
+              onClose={handleCloseModal}
+              onAgree={handleAgreeAndProceed}
+            />
+          )}
 
-        <WelcomeChat />
-      </Layout>
-    </MusicProvider>
+          <WelcomeChat />
+        </Layout>
+      </MusicProvider>
+    </AuthProvider>
   );
 }
 
 export default App;
+

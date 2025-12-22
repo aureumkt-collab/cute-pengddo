@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import assets from '../assets.json';
+import assetsLocal from '../assets.json';
 import GwiyeomMall from './GwiyeomMall';
+import { supabase } from '../supabaseClient';
+import { localMallItems } from '../data/mallItems';
 
 const EMOJIS = ['🐧', '💜', '✨', '💕', '🌟', '❄️', '💙', '🎀', '🦋', '🌸'];
 
@@ -38,7 +40,7 @@ const EmojiParticle = ({ emoji, style }) => (
     </div>
 );
 
-const Gallery = () => {
+const Gallery = ({ onProductClick }) => {
     const [activeTab, setActiveTab] = useState('activity'); // 'activity' or 'mall'
 
     // ... existing states and functions ...
@@ -47,104 +49,43 @@ const Gallery = () => {
     const [swipeOffset, setSwipeOffset] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [slideDirection, setSlideDirection] = useState(null);
+    const [mallItems, setMallItems] = useState([]);
+    const [assets, setAssets] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     // 스와이프 관련 ref
     const touchStartY = useRef(0);
     const touchCurrentY = useRef(0);
     const isDragging = useRef(false);
 
-    // 몰 관련 가상 데이터 (갤러리 자산 및 생성된 굿즈 이미지 기반)
-    const mallItems = [
-        {
-            id: 11,
-            name: "펭뚜와 친구들 리얼 피규어세트",
-            price: "450수당",
-            image: "goods/1757692300758.jpg",
-            tag: "NEW",
-            desc: "펭뚜와 친구들이 모두 모였다! 귀염부서의 정수가 담긴 고퀄리티 리얼 피규어 세트입니다."
-        },
-        {
-            id: 12,
-            name: "엄마와 펭뚜 리얼 피규어(조명 미포함)",
-            price: "320수당",
-            image: "goods/1757681782472.jpg",
-            tag: "HOT",
-            desc: "포근한 모성애가 느껴지는 엄마와 펭뚜의 소중한 순간을 담은 리얼 피규어입니다."
-        },
-        {
-            id: 13,
-            name: "우주에서 응원하기 귀염부서 포스터",
-            price: "120수당",
-            image: "goods/1757084865559.jpg",
-            tag: "NEW",
-            desc: "우주 멀리서도 귀염부서가 당신을 응원합니다! 우주 진출기념 귀염부서 공식 포스터입니다."
-        },
-        {
-            id: 9,
-            name: "소수 전용 프리미엄 핑크 헤드셋",
-            price: "150수당",
-            image: "penguin_headset.jpg",
-            tag: "HOT",
-            desc: "귀가 시린 소수들을 위한 필수 아이템! 부드러운 핑크 컬러와 포근한 착용감을 자랑하는 전용 헤드셋입니다. 귀여운 음악이 흐릅니다."
-        },
-        {
-            id: 0,
-            name: "빙하위 펭귄 3D리얼 피규어",
-            price: "400수당",
-            image: "penguin_ice_figure.png",
-            tag: "NEW",
-            desc: "차가운 빙하 위에서도 따뜻한 미소를 잃지 않는 펭귄! 신비로운 반사광이 매력적인 프리미엄 3D 피규어입니다. 세워놓으면 집안이 후끈해집니다."
-        },
-        {
-            id: 1,
-            name: "귀염부서 공식 펭뚜 머그컵",
-            price: "250수당",
-            image: "pengddo_mugcup.png",
-            tag: "BEST",
-            desc: "귀여운 펭뚜 매니저의 얼굴이 그대로! 세상을 구하는 귀여움이 담긴 프리미엄 머그컵입니다. 모든 음료가 요쿠르트로 변하는 부작용이 있으니 됴심합니다."
-        },
-        {
-            id: 2,
-            name: "노란 츄리닝 펭뚜 아크릴 키링",
-            price: "180수당",
-            image: "pengddo_keyring.png",
-            tag: "HOT",
-            desc: "노란 츄리닝을 입은 펭뚜 인형의 모습이 쏙! 어디든 달고 다닐 수 있는 고퀄리티 아크릴 키링입니다. 근방의 모든사람들이 힘을 얻습니다."
-        },
-        {
-            id: 3,
-            name: "말랑말랑 펭뚜 스티커 팩",
-            price: "50수당",
-            image: "pengddo_sticker.png",
-            tag: "NEW",
-            desc: "다양한 표정의 펭뚜를 스티커로 만나보세요. 다꾸(다이어리 꾸미기) 필수 아이템!"
-        },
+    // 데이터 가져오기 (Supabase 연결 일시 비활성화)
+    useEffect(() => {
+        // Supabase 연결 일시 비활성화 - 로컬 데이터 사용
+        setMallItems(localMallItems);
+        setAssets(assetsLocal);
+        setLoading(false);
 
-        {
-            id: 7,
-            name: "드라이브 펭뚜 리얼 피규어",
-            price: "380수당",
-            image: "pengddo_figure.png",
-            tag: "HOT",
-            desc: "귀염부서가 출장을 갈 때 타는 리얼 카트 한정판 피규어 입니다!!"
-        },
-        {
-            id: 10,
-            name: "귀염부서 공식 털 보자기",
-            price: "500수당",
-            image: "furry_bojagi_logo.png",
-            tag: "NEW",
-            desc: "보들보들한 털로 제작된 귀염부서 리미티드 에디션 보자기입니다. 귀여운 꿈을 꿀 수 있고 귀염부서 로고가 정성스럽게 새겨져 있어 품격을 더합니다."
-        },
-        {
-            id: 8,
-            name: "펭뚜가 입던 노란 츄리닝",
-            price: "400수당",
-            image: "20241230_200712.jpg",
-            tag: "BEST",
-            desc: "입고 잠들면 나도 슈퍼스타!"
-        }
-    ];
+        /* Supabase 연결 코드 (나중에 활성화)
+        const fetchData = async () => {
+            const { data: mallData, error: mallError } = await supabase.from('mall_items').select('*').order('orders', { ascending: true });
+            const { data: galleryData, error: galleryError } = await supabase.from('gallery_items').select('*').order('created_at', { ascending: false });
+
+            if (!mallError && mallData && mallData.length > 0) {
+                setMallItems(mallData);
+            } else {
+                setMallItems(localMallItems);
+            }
+
+            if (!galleryError && galleryData && galleryData.length > 0) {
+                setAssets(galleryData.map(item => item.filename));
+            } else {
+                setAssets(assetsLocal);
+            }
+            setLoading(false);
+        };
+        fetchData();
+        */
+    }, []);
 
     // 현재 이미지 인덱스 가져오기
     const getCurrentIndex = useCallback(() => {
@@ -525,7 +466,7 @@ const Gallery = () => {
                             ))}
                         </div>
                     ) : (
-                        <GwiyeomMall mallItems={mallItems} />
+                        <GwiyeomMall mallItems={mallItems} onProductClick={onProductClick} />
                     )}
 
                     {/* YouTube Section */}

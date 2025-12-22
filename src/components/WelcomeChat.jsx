@@ -1,39 +1,24 @@
 import React, { useState, useEffect } from 'react';
-
-const messageGroups = [
-    {
-        id: 'initial',
-        groupDelay: 500, // 접속 후 첫 그룹이 나오기까지 딜레이
-        displayDuration: 5000, // 마지막 메시지 출력 후 유지 시간
-        messages: [
-            { sender: '펭뚜 매니저', text: '펭~~하!!', type: 'manager', delay: 1000 },
-            { sender: '펭뚜 매니저', text: '귀염부서 팀장 펭뚜 입니다😍', type: 'manager', delay: 2000 },
-            { sender: '헤펭이', text: '어, 누가 들어왔다!', type: 'hepeng', delay: 2500 },
-            { sender: '헤펭이', text: '매니저님!! 여기 여기!', type: 'hepeng', delay: 1000 },
-            { sender: '펭뚜 매니저', text: '헤펭이 너 또 음악 들었지!', type: 'manager', delay: 3000 },
-            { sender: '펭뚜 매니저', text: '떤배님 잠시만요!', type: 'manager', delay: 2000 },
-        ]
-    },
-    {
-        id: 'follow-up',
-        groupDelay: 30000, // 첫 그룹이 사라진 후 30초 후에 나타남
-        displayDuration: 5000,
-        messages: [
-            { sender: '헤펭이', text: '매니저님!', type: 'hepeng', delay: 1000 },
-            { sender: '헤펭이', text: '아직도 누가 있어요!', type: 'hepeng', delay: 1000 },
-            { sender: '펭뚜 매니저', text: '어? 진짜네?', type: 'manager', delay: 2000 },
-            { sender: '펭뚜 매니저', text: '어디가 아프신가요?', type: 'manager', delay: 3000 },
-            { sender: '펭뚜 매니저', text: '응원 받으시려면', type: 'manager', delay: 2000 },
-            { sender: '헤펭이', text: '😴💤zzzz...', type: 'hepeng', delay: 1000 },
-            { sender: '펭뚜 매니저', text: '헤펭이 너..', type: 'manager', delay: 2000 },
-            { sender: '펭뚜 매니저', text: '떤배님 잠시만요...', type: 'manager', delay: 2000 },
-        ]
-    }
-];
+import { supabase } from '../supabaseClient';
 
 const WelcomeChat = () => {
     const [visibleMessages, setVisibleMessages] = useState([]);
     const [isVisible, setIsVisible] = useState(false);
+    const [messageGroups, setMessageGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const localMessageGroups = [
+        {
+            id: 'initial',
+            groupDelay: 500,
+            displayDuration: 5000,
+            messages: [
+                { sender: '펭뚜 매니저', text: '펭~~하!!', type: 'manager', delay: 1000 },
+                { sender: '헤펭이', text: '어, 누가 들어왔다!', type: 'hepeng', delay: 2500 },
+                { sender: '펭뚜 매니저', text: '떤배님 잠시만요!', type: 'manager', delay: 2000 },
+            ]
+        }
+    ];
 
     const getCurrentTime = () => {
         const now = new Date();
@@ -46,6 +31,36 @@ const WelcomeChat = () => {
     };
 
     useEffect(() => {
+        const fetchChats = async () => {
+            const { data, error } = await supabase.from('welcome_chats').select('*').order('orders', { ascending: true });
+
+            if (!error && data && data.length > 0) {
+                const grouped = data.reduce((acc, chat) => {
+                    const existingGroup = acc.find(g => g.id === chat.group_id);
+                    if (existingGroup) {
+                        existingGroup.messages.push(chat);
+                    } else {
+                        acc.push({
+                            id: chat.group_id,
+                            groupDelay: chat.group_delay || 500,
+                            displayDuration: chat.display_duration || 5000,
+                            messages: [chat]
+                        });
+                    }
+                    return acc;
+                }, []);
+                setMessageGroups(grouped);
+            } else {
+                setMessageGroups(localMessageGroups);
+            }
+            setLoading(false);
+        };
+        fetchChats();
+    }, []);
+
+    useEffect(() => {
+        if (loading || messageGroups.length === 0) return;
+
         let timeouts = [];
 
         const playGroup = async (groupIndex) => {
@@ -53,23 +68,19 @@ const WelcomeChat = () => {
 
             const group = messageGroups[groupIndex];
 
-            // 1. 그룹 시작 전 대기
             const waitBeforeGroup = setTimeout(() => {
                 setVisibleMessages([]);
                 setIsVisible(true);
 
-                // 2. 메시지 하나씩 출력
                 let cumulativeDelay = 0;
                 group.messages.forEach((msg, msgIndex) => {
                     cumulativeDelay += msg.delay;
                     const msgTimeout = setTimeout(() => {
                         setVisibleMessages(prev => [...prev, { ...msg, time: getCurrentTime() }]);
 
-                        // 마지막 메시지인 경우, 일정 시간 후 사라지게 설정
                         if (msgIndex === group.messages.length - 1) {
                             const hideTimeout = setTimeout(() => {
                                 setIsVisible(false);
-                                // 말풍선이 완전히 사라진 후(transition 0.5s) 메시지 초기화 및 다음 그룹 진행
                                 const resetTimeout = setTimeout(() => {
                                     setVisibleMessages([]);
                                     playGroup(groupIndex + 1);
@@ -91,8 +102,9 @@ const WelcomeChat = () => {
         return () => {
             timeouts.forEach(t => clearTimeout(t));
         };
-    }, []);
+    }, [loading, messageGroups]);
 
+    if (loading) return null;
     if (!isVisible && visibleMessages.length === 0) return null;
 
     return (

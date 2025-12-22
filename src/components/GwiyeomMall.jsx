@@ -1,13 +1,17 @@
 import React from 'react';
 import HotItemsSwiper from './HotItemsSwiper';
 
-const GwiyeomMall = ({ mallItems }) => {
+const GwiyeomMall = ({ mallItems, onProductClick }) => {
     // HOT 상품 데이터 필터링 하거나 따로 관리 (지금은 모든 아이템을 HOT으로 표시하거나 샘플링)
     const hotItems = mallItems.filter(item => item.tag === 'BEST' || item.tag === 'NEW');
 
-    const handleClick = (e) => {
+    const handleClick = (id, e) => {
         e.stopPropagation();
-        alert('수당이 부족해요! ✨');
+        if (onProductClick) {
+            onProductClick(id);
+        } else {
+            alert('수당이 부족해요! ✨');
+        }
     };
 
     return (
@@ -35,13 +39,13 @@ const GwiyeomMall = ({ mallItems }) => {
                     귀염부서에서 운영하는 공식 쇼핑몰입니다.
                     응원을 통해 귀염수당 적립 시 구매하실 수 있습니다.
                     <div style={{ color: '#f59e0b', fontWeight: '700', marginTop: '8px' }}>
-                        배송혜택 : *귀염부서 카트로 직접 문앞까지 배송 후 펭뚜와 헤펭이가 초인종을 누르고 서 있습니다.
+                        배송혜택 : *귀염부서 직원이 직접 문앞까지 배송해 드리고 펭뚜와 헤펭이가 초인종을 누르고 서 있습니다.
                     </div>
                 </p>
             </div>
 
             {/* Top Area: HOT Items Swiper */}
-            <HotItemsSwiper items={hotItems} />
+            <HotItemsSwiper items={hotItems} onProductClick={onProductClick} />
 
             {/* All Items Grid */}
             <div style={{
@@ -63,7 +67,7 @@ const GwiyeomMall = ({ mallItems }) => {
                 {mallItems.map((item, index) => (
                     <div
                         key={item.id}
-                        onClick={handleClick}
+                        onClick={(e) => handleClick(item.id, e)}
                         style={{
                             background: 'var(--color-surface-light)',
                             borderRadius: '24px',
@@ -152,7 +156,7 @@ const GwiyeomMall = ({ mallItems }) => {
                                     color: 'var(--color-primary)'
                                 }}>{item.price}</span>
                                 <button
-                                    onClick={handleClick}
+                                    onClick={(e) => handleClick(item.id, e)}
                                     style={{
                                         background: 'var(--color-text)',
                                         color: 'var(--color-surface)',

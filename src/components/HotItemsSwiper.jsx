@@ -7,9 +7,13 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 
-const HotItemsSwiper = ({ items }) => {
-    const handleClick = () => {
-        alert('수당이 부족해요! ✨');
+const HotItemsSwiper = ({ items, onProductClick }) => {
+    const handleClick = (id) => {
+        if (onProductClick) {
+            onProductClick(id);
+        } else {
+            alert('수당이 부족해요! ✨');
+        }
     };
 
     return (
@@ -59,7 +63,7 @@ const HotItemsSwiper = ({ items }) => {
                 {items.map((item) => (
                     <SwiperSlide key={item.id}>
                         <div
-                            onClick={handleClick}
+                            onClick={() => handleClick(item.id)}
                             style={{
                                 background: 'white',
                                 borderRadius: '24px',

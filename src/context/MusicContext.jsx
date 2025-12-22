@@ -2,24 +2,43 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 
 const MusicContext = createContext();
 
-import { trackInfo } from '../data/tracks';
-
-const playlist = trackInfo.map(track => track.audio);
+import { supabase } from '../supabaseClient';
+import { trackInfo as localTrackInfo } from '../data/tracks';
 
 export const MusicProvider = ({ children }) => {
+    const [tracks, setTracks] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchTracks = async () => {
+            const { data, error } = await supabase.from('tracks').select('*').order('orders', { ascending: true });
+            if (!error && data && data.length > 0) {
+                setTracks(data);
+            } else {
+                setTracks(localTrackInfo);
+            }
+            setLoading(false);
+        };
+        fetchTracks();
+    }, []);
+
     const [isPlaying, setIsPlaying] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.has('song');
     });
-    const [trackIndex, setTrackIndex] = useState(() => {
-        const params = new URLSearchParams(window.location.search);
-        const songId = params.get('song');
-        if (songId) {
-            const index = trackInfo.findIndex(t => t.id === songId);
-            if (index !== -1) return index;
+    const [trackIndex, setTrackIndex] = useState(0);
+
+    // URL 파라미터 기반 초기 트랙 설정은 데이터 로딩 후 처리
+    useEffect(() => {
+        if (!loading && tracks.length > 0) {
+            const params = new URLSearchParams(window.location.search);
+            const songId = params.get('song');
+            if (songId) {
+                const index = tracks.findIndex(t => t.id === songId || t.track_id === songId);
+                if (index !== -1) setTrackIndex(index);
+            }
         }
-        return 0;
-    });
+    }, [loading, tracks]);
     const [isPanelOpen, setIsPanelOpen] = useState(false);
     const [volume, setVolume] = useState(0.3);
     const [isShuffle, setIsShuffle] = useState(false);
@@ -28,10 +47,10 @@ export const MusicProvider = ({ children }) => {
     const audioRef = useRef(null);
 
     const getRandomIndex = (currentIndex) => {
-        if (playlist.length <= 1) return 0;
+        if (tracks.length <= 1) return 0;
         let nextIndex;
         do {
-            nextIndex = Math.floor(Math.random() * playlist.length);
+            nextIndex = Math.floor(Math.random() * tracks.length);
         } while (nextIndex === currentIndex);
         return nextIndex;
     };
@@ -120,7 +139,7 @@ export const MusicProvider = ({ children }) => {
         if (isShuffle) {
             setTrackIndex(getRandomIndex(trackIndex));
         } else {
-            const nextIndex = (trackIndex + 1) % playlist.length;
+            const nextIndex = (trackIndex + 1) % tracks.length;
             setTrackIndex(nextIndex);
         }
         setIsPlaying(true);
@@ -130,7 +149,7 @@ export const MusicProvider = ({ children }) => {
         if (isShuffle) {
             setTrackIndex(getRandomIndex(trackIndex));
         } else {
-            const prevIndex = (trackIndex - 1 + playlist.length) % playlist.length;
+            const prevIndex = (trackIndex - 1 + tracks.length) % tracks.length;
             setTrackIndex(prevIndex);
         }
         setIsPlaying(true);
@@ -148,20 +167,23 @@ export const MusicProvider = ({ children }) => {
         togglePlay,
         skipToNextTrack,
         skipToPrevTrack,
-        playlist,
-        currentTrack: playlist[trackIndex],
+        tracks,
+        currentTrack: tracks[trackIndex],
         currentTime,
         duration,
-        seek
+        seek,
+        loading
     };
 
     return (
         <MusicContext.Provider value={value}>
             {children}
-            <audio
-                ref={audioRef}
-                src={playlist[trackIndex]}
-            />
+            {!loading && tracks.length > 0 && (
+                <audio
+                    ref={audioRef}
+                    src={tracks[trackIndex]?.audio}
+                />
+            )}
         </MusicContext.Provider>
     );
 };
