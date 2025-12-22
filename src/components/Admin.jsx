@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { RefreshCw } from 'lucide-react';
 
 const Admin = () => {
     const [password, setPassword] = useState('');
@@ -439,16 +440,23 @@ const ApplicantsList = () => {
                     onClick={fetchApplicants}
                     disabled={loading}
                     style={{
-                        padding: '6px 12px',
-                        borderRadius: '6px',
+                        padding: '8px 16px',
+                        borderRadius: '10px',
                         background: 'var(--color-surface)',
                         border: '1px solid var(--color-border)',
                         color: 'var(--color-text)',
                         cursor: 'pointer',
-                        fontSize: '0.8rem'
+                        fontSize: '0.85rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'all 0.3s'
                     }}
+                    onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+                    onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
                 >
-                    {loading ? '갱신 중...' : '새로고침 🔄'}
+                    {loading ? '갱신 중...' : '새로고침'}
+                    {!loading && <RefreshCw size={14} />}
                 </button>
             </div>
             <table style={adminTableStyle}>

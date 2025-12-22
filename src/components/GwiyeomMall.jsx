@@ -1,5 +1,6 @@
 import React from 'react';
 import HotItemsSwiper from './HotItemsSwiper';
+import { ShoppingBag } from 'lucide-react';
 
 const GwiyeomMall = ({ mallItems, onProductClick }) => {
     // HOT 상품 데이터 필터링 하거나 따로 관리 (지금은 모든 아이템을 HOT으로 표시하거나 샘플링)
@@ -26,7 +27,9 @@ const GwiyeomMall = ({ mallItems, onProductClick }) => {
                 animation: 'fadeIn 0.8s ease-out'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '1rem' }}>🛍️</span>
+                    <span style={{ color: 'var(--color-primary-light)' }}>
+                        <ShoppingBag size={18} />
+                    </span>
                     <h2 style={{ fontSize: '0.95rem', fontWeight: '700', color: 'var(--color-text-muted)' }}>귀염몰 안내</h2>
                 </div>
                 <p style={{

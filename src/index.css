@@ -2,6 +2,7 @@
 
 :root {
   --color-primary: #8B5CF6;
+  --color-primary-light: #A78BFA;
   /* Violet */
   --color-secondary: #6366F1;
   /* Indigo */
@@ -27,6 +28,7 @@
 
 .christmas-theme {
   --color-primary: #C41E3A;
+  --color-primary-light: #FF4D6D;
   /* Christmas Red */
   --color-secondary: #013220;
   /* Forest Green */

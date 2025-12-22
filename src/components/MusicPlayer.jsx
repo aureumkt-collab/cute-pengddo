@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useMusic } from '../context/MusicContext';
 import { trackInfo } from '../data/tracks';
+import { SkipBack, SkipForward, Play, Pause, Shuffle, Share2, ListMusic, Music } from 'lucide-react';
 
 
 const MusicPlayer = ({ variant = 'fixed' }) => {
@@ -215,9 +216,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         transition: 'all 0.2s',
                         opacity: 0.8
                     }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
-                        </svg>
+                        <SkipBack size={18} fill="currentColor" />
                     </button>
 
                     {/* Play/Pause */}
@@ -236,14 +235,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)'
                     }} className="btn-hover-scale btn-active-scale">
                         {isPlaying ? (
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                <rect x="6" y="4" width="4" height="16" rx="1" />
-                                <rect x="14" y="4" width="4" height="16" rx="1" />
-                            </svg>
+                            <Pause size={14} fill="currentColor" />
                         ) : (
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
+                            <Play size={16} fill="currentColor" style={{ marginLeft: '2px' }} />
                         )}
                     </button>
 
@@ -260,9 +254,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         transition: 'all 0.2s',
                         opacity: 0.8
                     }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-                        </svg>
+                        <SkipForward size={18} fill="currentColor" />
                     </button>
 
                     {/* Shuffle */}
@@ -278,13 +270,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         transition: 'all 0.2s',
                         opacity: isShuffle ? 1 : 0.6
                     }} className="btn-hover-scale-lg btn-hover-opacity btn-active-scale">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="16 3 21 3 21 8"></polyline>
-                            <line x1="4" y1="20" x2="21" y2="3"></line>
-                            <polyline points="21 16 21 21 16 21"></polyline>
-                            <line x1="15" y1="15" x2="21" y2="21"></line>
-                            <line x1="4" y1="4" x2="9" y2="9"></line>
-                        </svg>
+                        <Shuffle size={16} />
                     </button>
                 </div>
             </div>
@@ -340,11 +326,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     className="btn-hover-bg btn-active-scale"
                     title="공유하기"
                 >
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                        <polyline points="16 6 12 2 8 6"></polyline>
-                        <line x1="12" y1="2" x2="12" y2="15"></line>
-                    </svg>
+                    <Share2 size={18} />
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px' }}>
@@ -445,14 +427,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             transition: 'all 0.2s',
                             borderRadius: '10px'
                         }} className="btn-hover-bg btn-active-scale" title="재생목록">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                <circle cx="3" cy="6" r="1" fill="currentColor"></circle>
-                                <circle cx="3" cy="12" r="1" fill="currentColor"></circle>
-                                <circle cx="3" cy="18" r="1" fill="currentColor"></circle>
-                            </svg>
+                            <ListMusic size={22} />
                         </button>
                     </div>
 
@@ -466,9 +441,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             borderRadius: '10px',
                             transition: 'all 0.2s'
                         }} className="btn-hover-bg btn-hover-opacity btn-active-scale">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M6 6h2v12H6zm3.5 6L19 18V6z" />
-                            </svg>
+                            <SkipBack size={22} fill="currentColor" />
                         </button>
 
                         <button onClick={togglePlay} style={{
@@ -486,14 +459,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             transition: 'all 0.2s'
                         }} className="btn-hover-scale btn-active-scale">
                             {isPlaying ? (
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <rect x="6" y="4" width="4" height="16" rx="1" />
-                                    <rect x="14" y="4" width="4" height="16" rx="1" />
-                                </svg>
+                                <Pause size={20} fill="currentColor" />
                             ) : (
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z" />
-                                </svg>
+                                <Play size={22} fill="currentColor" style={{ marginLeft: '2px' }} />
                             )}
                         </button>
 
@@ -506,9 +474,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             borderRadius: '10px',
                             transition: 'all 0.2s'
                         }} className="btn-hover-bg btn-hover-opacity btn-active-scale">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
-                            </svg>
+                            <SkipForward size={22} fill="currentColor" />
                         </button>
                     </div>
 
@@ -522,13 +488,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             transition: 'all 0.2s',
                             borderRadius: '10px'
                         }} className="btn-hover-bg btn-active-scale">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="16 3 21 3 21 8"></polyline>
-                                <line x1="4" y1="20" x2="21" y2="3"></line>
-                                <polyline points="21 16 21 21 16 21"></polyline>
-                                <line x1="15" y1="15" x2="21" y2="21"></line>
-                                <line x1="4" y1="4" x2="9" y2="9"></line>
-                            </svg>
+                            <Shuffle size={20} />
                         </button>
                     </div>
                 </div>
@@ -761,7 +721,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                             <div style={{ width: '3px', height: '10px', background: 'white', borderRadius: '1px' }} />
                         </div>
                     ) : (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
+                        <Play size={16} fill="white" style={{ marginLeft: '2px' }} />
                     )}
                 </button>
                 <div style={{ fontSize: '11px', fontWeight: '600', color: 'white', opacity: 0.8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100px' }}>
@@ -774,14 +734,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     cursor: 'pointer',
                     padding: '4px'
                 }} title="재생목록">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="8" y1="6" x2="21" y2="6"></line>
-                        <line x1="8" y1="12" x2="21" y2="12"></line>
-                        <line x1="8" y1="18" x2="21" y2="18"></line>
-                        <circle cx="3" cy="6" r="1" fill="currentColor"></circle>
-                        <circle cx="3" cy="12" r="1" fill="currentColor"></circle>
-                        <circle cx="3" cy="18" r="1" fill="currentColor"></circle>
-                    </svg>
+                    <ListMusic size={20} />
                 </button>
             </div>
 

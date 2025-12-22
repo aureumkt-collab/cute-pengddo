@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
     const { user, loading, signInWithGoogle, signOut } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <header style={{
@@ -33,7 +35,7 @@ const Header = () => {
                     backgroundClip: 'text',
                     cursor: 'pointer'
                 }}
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    onClick={() => navigate('/')}
                 >
                     <div style={{
                         width: '40px',
@@ -58,10 +60,11 @@ const Header = () => {
                 <nav>
                     <ul style={{
                         display: 'flex',
-                        gap: '16px',
+                        gap: '24px',
                         listStyle: 'none',
                         alignItems: 'center'
                     }}>
+
                         <li>
                             {loading ? (
                                 <div style={{

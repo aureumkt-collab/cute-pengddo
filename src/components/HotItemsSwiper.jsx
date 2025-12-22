@@ -1,6 +1,7 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
+import { Flame } from 'lucide-react';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -29,7 +30,9 @@ const HotItemsSwiper = ({ items, onProductClick }) => {
                 alignItems: 'center',
                 gap: '12px'
             }}>
-                <span style={{ fontSize: '2rem' }}>🔥</span>
+                <span style={{ color: '#FF4B2B', display: 'flex', alignItems: 'center' }}>
+                    <Flame size={28} fill="#FF4B2B" />
+                </span>
                 HOT 한 상품들
             </h2>
 

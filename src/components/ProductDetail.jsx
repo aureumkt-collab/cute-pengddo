@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { localMallItems } from '../data/mallItems';
+import { ArrowLeft, Truck, Heart } from 'lucide-react';
 
-const ProductDetail = ({ productId, onBack }) => {
+const ProductDetail = ({ onBack }) => {
+    const { id: productId } = useParams();
     const [product, setProduct] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        const found = localMallItems.find(item => item.id === productId);
+        const found = localMallItems.find(item => String(item.id) === String(productId));
         setProduct(found);
         setIsLoaded(true);
         window.scrollTo(0, 0);
@@ -69,10 +72,7 @@ const ProductDetail = ({ productId, onBack }) => {
                         e.currentTarget.style.transform = 'translateX(0)';
                     }}
                 >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
+                    <ArrowLeft size={24} strokeWidth={2.5} />
                     뒤로가기
                 </button>
 
@@ -167,9 +167,11 @@ const ProductDetail = ({ productId, onBack }) => {
                             border: '1px solid rgba(245, 158, 11, 0.2)',
                             marginBottom: '40px'
                         }}>
-                            <div style={{ fontSize: '1.5rem' }}>🚚</div>
+                            <div style={{ color: '#f59e0b' }}>
+                                <Truck size={28} />
+                            </div>
                             <div>
-                                <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#f59e0b', marginBottom: '4px' }}>귀염배속 서비스</h4>
+                                <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#f59e0b', marginBottom: '4px' }}>귀염배송 서비스</h4>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>
                                     귀염부서 직원이 직접 문앞까지 배송! 펭뚜와 헤펭이가 초인종을 누르고 기다립니다.
                                 </p>
@@ -210,18 +212,23 @@ const ProductDetail = ({ productId, onBack }) => {
                                     borderRadius: '16px',
                                     border: '1px solid var(--color-border)',
                                     background: 'var(--color-surface-light)',
+                                    color: 'var(--color-text)',
                                     cursor: 'pointer',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     transition: 'all 0.3s ease'
                                 }}
-                                onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
-                                onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--color-primary)';
+                                    e.currentTarget.style.color = 'var(--color-primary)';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.borderColor = 'var(--color-border)';
+                                    e.currentTarget.style.color = 'var(--color-text)';
+                                }}
                             >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
+                                <Heart size={24} />
                             </button>
                         </div>
                     </div>
