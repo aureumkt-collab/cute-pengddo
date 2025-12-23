@@ -19,10 +19,12 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         setIsShuffle,
         currentTime,
         duration,
-        seek
+        seek,
+        tracks
     } = useMusic();
 
     const [isDragging, setIsDragging] = useState(false);
+    const [activeTab, setActiveTab] = useState('playlist');
     const progressBarRef = useRef(null);
 
     const formatTime = (time) => {
@@ -99,7 +101,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         }
     };
 
-    const currentInfo = trackInfo[trackIndex] || trackInfo[0];
+    const currentInfo = tracks[trackIndex] || tracks[0] || {};
 
     if (variant === 'mini') {
         return (
@@ -135,7 +137,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         overflow: 'hidden',
                         flexShrink: 0
                     }}>
-                        <img src={currentInfo.cover} alt="cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                     <div style={{
                         color: 'white',
@@ -339,7 +341,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)',
                         flexShrink: 0
                     }}>
-                        <img src={currentInfo.cover} alt="cover" style={{
+                        <img src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
@@ -493,7 +495,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 </div>
 
-                {/* Lyrics & Playlist Section (Integrated) */}
+                {/* Tabs Section */}
                 <div style={{
                     maxHeight: isPanelOpen ? '500px' : '0px',
                     opacity: isPanelOpen ? 1 : 0,
@@ -508,121 +510,167 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         .integrated-container::-webkit-scrollbar { display: none; }
                     `}</style>
 
-                    {/* Playlist Part */}
-                    <div style={{ color: '#F472B6', fontWeight: 'bold', marginBottom: '16px', fontSize: '11px', letterSpacing: '0.05em', textAlign: 'center' }}>PLAYLIST</div>
-                    <div style={{ marginBottom: '24px' }}>
-                        {trackInfo.map((track, index) => (
-                            <div
-                                key={index}
-                                onClick={() => {
-                                    setTrackIndex(index);
-                                    setIsPlaying(true);
-                                }}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '10px 12px',
-                                    borderRadius: '12px',
-                                    cursor: 'pointer',
-                                    background: trackIndex === index ? 'rgba(244, 114, 182, 0.1)' : 'transparent',
-                                    transition: 'all 0.2s',
-                                    marginBottom: '4px',
-                                    border: trackIndex === index ? '1px solid rgba(244, 114, 182, 0.2)' : '1px solid transparent'
-                                }}
-                                className="btn-hover-bg"
-                            >
-                                <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden' }}>
-                                    <img src={track.cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        color: trackIndex === index ? '#F472B6' : '#fff',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
-                                        {track.title}
-                                    </div>
-                                    <div style={{
-                                        fontSize: '12px',
-                                        color: 'rgba(255, 255, 255, 0.4)',
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis'
-                                    }}>
-                                        {track.artist}
-                                    </div>
-                                </div>
-                                {trackIndex === index && (
-                                    <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px', opacity: 0.8 }}>
-                                        <div style={{
-                                            width: '2px',
-                                            height: isPlaying ? '100%' : '60%',
-                                            background: '#F472B6',
-                                            borderRadius: '1px',
-                                            animation: isPlaying ? 'musicBar 0.8s ease-in-out infinite alternate' : 'none',
-                                            transition: 'height 0.3s ease'
-                                        }} />
-                                        <div style={{
-                                            width: '2px',
-                                            height: isPlaying ? '60%' : '40%',
-                                            background: '#F472B6',
-                                            borderRadius: '1px',
-                                            animation: isPlaying ? 'musicBar 0.5s ease-in-out infinite alternate-reverse' : 'none',
-                                            transition: 'height 0.3s ease'
-                                        }} />
-                                        <div style={{
-                                            width: '2px',
-                                            height: isPlaying ? '80%' : '50%',
-                                            background: '#F472B6',
-                                            borderRadius: '1px',
-                                            animation: isPlaying ? 'musicBar 0.7s ease-in-out infinite alternate' : 'none',
-                                            transition: 'height 0.3s ease'
-                                        }} />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Lyrics Part */}
-                    <div style={{ color: '#F472B6', fontWeight: 'bold', marginBottom: '16px', fontSize: '11px', letterSpacing: '0.05em', textAlign: 'center', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>LYRICS</div>
+                    {/* Tab Buttons */}
                     <div style={{
-                        fontSize: '14px',
-                        lineHeight: '1.8',
-                        color: 'rgba(255, 255, 255, 0.8)'
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        marginBottom: '16px'
                     }}>
-                        {currentInfo.description && (
-                            <div style={{
-                                marginBottom: '24px',
-                                padding: '16px',
-                                background: 'rgba(255, 255, 255, 0.04)',
-                                borderRadius: '16px',
-                                fontSize: '13px',
-                                color: 'rgba(255, 255, 255, 0.6)',
-                                textAlign: 'center',
-                                lineHeight: '1.6',
-                                border: '1px solid rgba(255, 255, 255, 0.05)',
-                                whiteSpace: 'pre-line'
-                            }}>
-                                <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em', marginBottom: '8px' }}>SONG INFO</div>
-
-                                {currentInfo.description}
-                            </div>
-                        )}
-
-                        {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
-                            <div key={i} style={{
-                                margin: '8px 0',
-                                color: line.trim().startsWith('[') ? '#F472B6' : 'inherit',
-                                fontWeight: line.trim().startsWith('[') ? '600' : '400',
-                                textAlign: 'center'
-                            }}>{line.trim()}</div>
-                        ))}
+                        <button
+                            onClick={() => setActiveTab('playlist')}
+                            style={{
+                                padding: '8px 20px',
+                                borderRadius: '20px',
+                                border: 'none',
+                                background: activeTab === 'playlist' ? 'rgba(244, 114, 182, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                color: activeTab === 'playlist' ? '#F472B6' : 'rgba(255, 255, 255, 0.5)',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                letterSpacing: '0.05em',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                            className="btn-hover-scale"
+                        >
+                            PLAYLIST
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('lyrics')}
+                            style={{
+                                padding: '8px 20px',
+                                borderRadius: '20px',
+                                border: 'none',
+                                background: activeTab === 'lyrics' ? 'rgba(244, 114, 182, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                                color: activeTab === 'lyrics' ? '#F472B6' : 'rgba(255, 255, 255, 0.5)',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                letterSpacing: '0.05em',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                            className="btn-hover-scale"
+                        >
+                            LYRICS
+                        </button>
                     </div>
+
+                    {/* Playlist Tab Content */}
+                    {activeTab === 'playlist' && (
+                        <div>
+                            {tracks.map((track, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => {
+                                        setTrackIndex(index);
+                                        setIsPlaying(true);
+                                    }}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '10px 12px',
+                                        borderRadius: '12px',
+                                        cursor: 'pointer',
+                                        background: trackIndex === index ? 'rgba(244, 114, 182, 0.1)' : 'transparent',
+                                        transition: 'all 0.2s',
+                                        marginBottom: '4px',
+                                        border: trackIndex === index ? '1px solid rgba(244, 114, 182, 0.2)' : '1px solid transparent'
+                                    }}
+                                    className="btn-hover-bg"
+                                >
+                                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden' }}>
+                                        <img src={track.cover} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            color: trackIndex === index ? '#F472B6' : '#fff',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {track.title}
+                                        </div>
+                                        <div style={{
+                                            fontSize: '12px',
+                                            color: 'rgba(255, 255, 255, 0.4)',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis'
+                                        }}>
+                                            {track.artist}
+                                        </div>
+                                    </div>
+                                    {trackIndex === index && (
+                                        <div style={{ display: 'flex', gap: '2px', alignItems: 'flex-end', height: '12px', opacity: 0.8 }}>
+                                            <div style={{
+                                                width: '2px',
+                                                height: isPlaying ? '100%' : '60%',
+                                                background: '#F472B6',
+                                                borderRadius: '1px',
+                                                animation: isPlaying ? 'musicBar 0.8s ease-in-out infinite alternate' : 'none',
+                                                transition: 'height 0.3s ease'
+                                            }} />
+                                            <div style={{
+                                                width: '2px',
+                                                height: isPlaying ? '60%' : '40%',
+                                                background: '#F472B6',
+                                                borderRadius: '1px',
+                                                animation: isPlaying ? 'musicBar 0.5s ease-in-out infinite alternate-reverse' : 'none',
+                                                transition: 'height 0.3s ease'
+                                            }} />
+                                            <div style={{
+                                                width: '2px',
+                                                height: isPlaying ? '80%' : '50%',
+                                                background: '#F472B6',
+                                                borderRadius: '1px',
+                                                animation: isPlaying ? 'musicBar 0.7s ease-in-out infinite alternate' : 'none',
+                                                transition: 'height 0.3s ease'
+                                            }} />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Lyrics Tab Content */}
+                    {activeTab === 'lyrics' && (
+                        <div style={{
+                            fontSize: '14px',
+                            lineHeight: '1.8',
+                            color: 'rgba(255, 255, 255, 0.8)'
+                        }}>
+                            {currentInfo.description && (
+                                <div style={{
+                                    marginBottom: '24px',
+                                    padding: '16px',
+                                    background: 'rgba(255, 255, 255, 0.04)',
+                                    borderRadius: '16px',
+                                    fontSize: '13px',
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    textAlign: 'center',
+                                    lineHeight: '1.6',
+                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                    whiteSpace: 'pre-line'
+                                }}>
+                                    <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em', marginBottom: '8px' }}>SONG INFO</div>
+                                    {currentInfo.description}
+                                </div>
+                            )}
+
+                            {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
+                                <div key={i} style={{
+                                    margin: '8px 0',
+                                    color: 'inherit',
+                                    fontWeight: '400',
+                                    textAlign: 'center'
+                                }}>{line.trim()}</div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <style>{`
@@ -753,8 +801,51 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     .integrated-container-fixed::-webkit-scrollbar { display: none; }
                 `}</style>
 
-                {/* Playlist */}
-                {trackInfo.map((track, index) => (
+                {/* Tab Buttons */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '4px',
+                    marginBottom: '12px'
+                }}>
+                    <button
+                        onClick={() => setActiveTab('playlist')}
+                        style={{
+                            padding: '6px 12px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: activeTab === 'playlist' ? 'rgba(244, 114, 182, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                            color: activeTab === 'playlist' ? '#F472B6' : 'rgba(255, 255, 255, 0.5)',
+                            fontSize: '10px',
+                            fontWeight: '600',
+                            letterSpacing: '0.05em',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        PLAYLIST
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('lyrics')}
+                        style={{
+                            padding: '6px 12px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: activeTab === 'lyrics' ? 'rgba(244, 114, 182, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+                            color: activeTab === 'lyrics' ? '#F472B6' : 'rgba(255, 255, 255, 0.5)',
+                            fontSize: '10px',
+                            fontWeight: '600',
+                            letterSpacing: '0.05em',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        LYRICS
+                    </button>
+                </div>
+
+                {/* Playlist Tab */}
+                {activeTab === 'playlist' && tracks.map((track, index) => (
                     <div
                         key={index}
                         onClick={() => {
@@ -775,7 +866,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         className="btn-hover-bg"
                     >
                         <div style={{ width: '28px', height: '28px', borderRadius: '4px', overflow: 'hidden', flexShrink: 0 }}>
-                            <img src={track.cover} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={track.cover} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{
@@ -792,35 +883,36 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 ))}
 
-                {/* Lyrics */}
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                    {currentInfo.description && (
-                        <div style={{
-                            marginBottom: '16px',
-                            padding: '12px',
-                            background: 'rgba(255, 255, 255, 0.04)',
-                            borderRadius: '12px',
-                            fontSize: '11px',
-                            color: 'rgba(255, 255, 255, 0.5)',
-                            textAlign: 'center',
-                            lineHeight: '1.5',
-                            border: '1px solid rgba(255, 255, 255, 0.05)'
-                        }}>
-                            <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em', marginBottom: '6px' }}>SONG INFO</div>
-
-                            {currentInfo.description}
-                        </div>
-                    )}
-                    {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
-                        <div key={i} style={{
-                            margin: '4px 0',
-                            fontSize: '11px',
-                            color: line.trim().startsWith('[') ? '#F472B6' : 'rgba(255, 255, 255, 0.7)',
-                            fontWeight: line.trim().startsWith('[') ? '600' : '400',
-                            textAlign: 'center'
-                        }}>{line.trim()}</div>
-                    ))}
-                </div>
+                {/* Lyrics Tab */}
+                {activeTab === 'lyrics' && (
+                    <div>
+                        {currentInfo.description && (
+                            <div style={{
+                                marginBottom: '16px',
+                                padding: '12px',
+                                background: 'rgba(255, 255, 255, 0.04)',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                textAlign: 'center',
+                                lineHeight: '1.5',
+                                border: '1px solid rgba(255, 255, 255, 0.05)'
+                            }}>
+                                <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em', marginBottom: '6px' }}>SONG INFO</div>
+                                {currentInfo.description}
+                            </div>
+                        )}
+                        {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (
+                            <div key={i} style={{
+                                margin: '4px 0',
+                                fontSize: '11px',
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                fontWeight: '400',
+                                textAlign: 'center'
+                            }}>{line.trim()}</div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

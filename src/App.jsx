@@ -11,6 +11,7 @@ import { MusicProvider } from './context/MusicContext';
 import { AuthProvider } from './context/AuthContext';
 import Admin from './components/Admin';
 import ProductDetail from './components/ProductDetail';
+import Purchase from './components/Purchase';
 
 // 크리스마스 기간 확인 (12월 22일 ~ 12월 25일)
 const checkIsChristmas = () => {
@@ -72,9 +73,10 @@ function AppContent() {
   const isApplyForm = location.pathname === '/apply-form';
   const isProductDetail = location.pathname.startsWith('/product/');
   const isApplyModal = location.pathname === '/apply-modal';
+  const isPurchase = location.pathname.startsWith('/purchase/');
 
   return (
-    <Layout hideHeader={isApplyForm || isProductDetail}>
+    <Layout hideHeader={isApplyForm || isProductDetail || isPurchase}>
       <Routes>
         <Route path="/" element={
           <>
@@ -90,6 +92,7 @@ function AppContent() {
         } />
         <Route path="/apply-form" element={<ApplyForm onClose={handleGoHome} />} />
         <Route path="/product/:id" element={<ProductDetail onBack={handleBack} />} />
+        <Route path="/purchase/:id" element={<Purchase />} />
         <Route path="/apply-modal" element={
           <>
             <Hero onApplyClick={handleApplyClick} />

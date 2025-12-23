@@ -9,13 +9,25 @@ export const MusicProvider = ({ children }) => {
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 앨범 커버 이미지 프리로딩 함수
+    const preloadImages = (trackList) => {
+        trackList.forEach(track => {
+            if (track.cover) {
+                const img = new Image();
+                img.src = track.cover;
+            }
+        });
+    };
+
     useEffect(() => {
         const fetchTracks = async () => {
             const { data, error } = await supabase.from('tracks').select('*').order('orders', { ascending: true });
             if (!error && data && data.length > 0) {
                 setTracks(data);
+                preloadImages(data); // 앨범 커버 프리로드
             } else {
                 setTracks(localTrackInfo);
+                preloadImages(localTrackInfo); // 앨범 커버 프리로드
             }
             setLoading(false);
         };
@@ -29,6 +41,7 @@ export const MusicProvider = ({ children }) => {
     const [trackIndex, setTrackIndex] = useState(0);
 
     // URL 파라미터 기반 초기 트랙 설정은 데이터 로딩 후 처리
+    // song 파라미터가 없으면 랜덤 곡으로 자동 재생
     useEffect(() => {
         if (!loading && tracks.length > 0) {
             const params = new URLSearchParams(window.location.search);
@@ -36,6 +49,11 @@ export const MusicProvider = ({ children }) => {
             if (songId) {
                 const index = tracks.findIndex(t => t.id === songId || t.track_id === songId);
                 if (index !== -1) setTrackIndex(index);
+            } else {
+                // song 파라미터가 없으면 랜덤 곡 선택 및 자동 재생
+                const randomIndex = Math.floor(Math.random() * tracks.length);
+                setTrackIndex(randomIndex);
+                setIsPlaying(true);
             }
         }
     }, [loading, tracks]);
@@ -56,12 +74,15 @@ export const MusicProvider = ({ children }) => {
     };
 
     const handleTrackEnd = () => {
+        if (tracks.length === 0) return;
+
         if (isShuffle) {
             setTrackIndex(getRandomIndex(trackIndex));
         } else {
-            const nextIndex = (trackIndex + 1) % playlist.length;
+            const nextIndex = (trackIndex + 1) % tracks.length;
             setTrackIndex(nextIndex);
         }
+        setIsPlaying(true);
     };
 
     const handleTimeUpdate = () => {
@@ -120,7 +141,7 @@ export const MusicProvider = ({ children }) => {
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
             audio.removeEventListener('canplay', handleCanPlay);
         };
-    }, [trackIndex, isPlaying, volume, isShuffle]);
+    }, [trackIndex, isPlaying, volume, isShuffle, tracks]);
 
 
 
@@ -181,7 +202,7 @@ export const MusicProvider = ({ children }) => {
             {!loading && tracks.length > 0 && (
                 <audio
                     ref={audioRef}
-                    src={tracks[trackIndex]?.audio}
+                    src={tracks[trackIndex]?.audio ? encodeURI(tracks[trackIndex].audio) : ''}
                 />
             )}
         </MusicContext.Provider>

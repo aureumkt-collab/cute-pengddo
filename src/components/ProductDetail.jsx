@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { localMallItems } from '../data/mallItems';
 import { ArrowLeft, Truck, Heart } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const ProductDetail = ({ onBack }) => {
     const { id: productId } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [product, setProduct] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -94,6 +97,8 @@ const ProductDetail = ({ onBack }) => {
                         <img
                             src={`/assets/${product.image}`}
                             alt={product.name}
+                            loading="eager"
+                            decoding="async"
                             style={{
                                 width: '100%',
                                 height: '100%',
@@ -180,7 +185,13 @@ const ProductDetail = ({ onBack }) => {
 
                         <div style={{ display: 'flex', gap: '16px' }}>
                             <button
-                                onClick={() => alert('수당이 부족해요! 열심히 응원해 주세요 ✨')}
+                                onClick={() => {
+                                    if (!user) {
+                                        alert('로그인이 필요합니다. 🐧');
+                                        return;
+                                    }
+                                    navigate(`/purchase/${product.id}`);
+                                }}
                                 style={{
                                     flex: 1,
                                     padding: '20px',

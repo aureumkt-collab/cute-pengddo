@@ -16,6 +16,8 @@
   /* Card background */
   --color-text: #F1F5F9;
   /* Light text */
+  --color-text-secondary: #CBD5E1;
+  /* Secondary text */
   --color-text-muted: #94A3B8;
   /* Muted text */
   --color-border: #2D2D4A;

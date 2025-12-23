@@ -228,6 +228,8 @@ const Hero = ({ onApplyClick }) => {
                             <img
                                 src={`/assets/${currentImage}`}
                                 alt="Pengddo Profile"
+                                loading="eager"
+                                decoding="async"
                                 style={{
                                     width: '100%',
                                     height: '100%',

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 const WelcomeChat = () => {
+    const { user } = useAuth();
     const [visibleMessages, setVisibleMessages] = useState([]);
     const [isVisible, setIsVisible] = useState(false);
     const [messageGroups, setMessageGroups] = useState([]);
@@ -14,8 +16,26 @@ const WelcomeChat = () => {
             displayDuration: 5000,
             messages: [
                 { sender: '펭뚜 매니저', text: '펭~~하!!', type: 'manager', delay: 1000 },
+                { sender: '펭뚜 매니저', text: '귀염부서 팀장 펭뚜 입니다😍', type: 'manager', delay: 2000 },
                 { sender: '헤펭이', text: '어, 누가 들어왔다!', type: 'hepeng', delay: 2500 },
+                { sender: '헤펭이', text: '매니저님!! 여기 여기!', type: 'hepeng', delay: 1000 },
+                { sender: '펭뚜 매니저', text: '헤펭이 너 또 음악 들었지!', type: 'manager', delay: 3000 },
                 { sender: '펭뚜 매니저', text: '떤배님 잠시만요!', type: 'manager', delay: 2000 },
+            ]
+        },
+        {
+            id: 'follow-up',
+            groupDelay: 30000,
+            displayDuration: 5000,
+            messages: [
+                { sender: '헤펭이', text: '매니저님!', type: 'hepeng', delay: 1000 },
+                { sender: '헤펭이', text: '아직도 누가 있어요!', type: 'hepeng', delay: 1000 },
+                { sender: '펭뚜 매니저', text: '어? 진짜네?', type: 'manager', delay: 2000 },
+                { sender: '펭뚜 매니저', text: '어디가 아프신가요?', type: 'manager', delay: 3000 },
+                { sender: '펭뚜 매니저', text: '응원 받으시려면', type: 'manager', delay: 2000 },
+                { sender: '헤펭이', text: '😴💤zzzz...', type: 'hepeng', delay: 1000 },
+                { sender: '펭뚜 매니저', text: '헤펭이 너..', type: 'manager', delay: 2000 },
+                { sender: '펭뚜 매니저', text: '떤배님 잠시만요...', type: 'manager', delay: 2000 },
             ]
         }
     ];
@@ -34,29 +54,50 @@ const WelcomeChat = () => {
         const fetchChats = async () => {
             const { data, error } = await supabase.from('welcome_chats').select('*').order('orders', { ascending: true });
 
+            let finalGroups = [];
             if (!error && data && data.length > 0) {
-                const grouped = data.reduce((acc, chat) => {
+                finalGroups = data.reduce((acc, chat) => {
                     const existingGroup = acc.find(g => g.id === chat.group_id);
                     if (existingGroup) {
-                        existingGroup.messages.push(chat);
+                        existingGroup.messages.push({ ...chat });
                     } else {
                         acc.push({
                             id: chat.group_id,
                             groupDelay: chat.group_delay || 500,
                             displayDuration: chat.display_duration || 5000,
-                            messages: [chat]
+                            messages: [{ ...chat }]
                         });
                     }
                     return acc;
                 }, []);
-                setMessageGroups(grouped);
             } else {
-                setMessageGroups(localMessageGroups);
+                // localMessageGroups 사용 시 깊은 복사 (user greeting 추가를 위해)
+                finalGroups = JSON.parse(JSON.stringify(localMessageGroups));
             }
+
+            // 구글 로그인 시 사용자명 인사말 추가
+            if (user && finalGroups.length > 0) {
+                const userName = user.user_metadata?.full_name || user.user_metadata?.name || '떤배님';
+                const greetingMsg = {
+                    sender: '펭뚜 매니저',
+                    text: `${userName} 떤배님, 오셨군요! 어서오세요🐧💙`,
+                    type: 'manager',
+                    delay: 1500
+                };
+
+                // 첫 번째 그룹의 "펭~~하!!"와 "귀염부서 팀장..." 사이에 삽입
+                if (finalGroups[0].messages.length > 0) {
+                    finalGroups[0].messages.splice(1, 0, greetingMsg);
+                } else {
+                    finalGroups[0].messages.push(greetingMsg);
+                }
+            }
+
+            setMessageGroups(finalGroups);
             setLoading(false);
         };
         fetchChats();
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         if (loading || messageGroups.length === 0) return;

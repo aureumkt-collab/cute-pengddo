@@ -431,6 +431,7 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                                             src={`/assets/${filename}`}
                                             alt={`Gallery item ${index + 1}`}
                                             loading="lazy"
+                                            decoding="async"
                                             style={{
                                                 position: 'absolute',
                                                 top: 0,
@@ -695,6 +696,8 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                         <img
                             src={`/assets/${selectedImage}`}
                             alt="Gallery preview"
+                            loading="eager"
+                            decoding="async"
                             draggable="false"
                             style={{ pointerEvents: 'none' }}
                         />

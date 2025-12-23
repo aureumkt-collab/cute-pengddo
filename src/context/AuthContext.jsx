@@ -34,10 +34,13 @@ export const AuthProvider = ({ children }) => {
 
     // Google 로그인
     const signInWithGoogle = async () => {
+        // 현재 브라우저의 접속 정보를 기반으로 리디렉션 주소 설정
+        const redirectUrl = window.location.origin;
+
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin
+                redirectTo: redirectUrl
             }
         });
         if (error) {

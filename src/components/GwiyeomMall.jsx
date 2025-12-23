@@ -1,18 +1,29 @@
 import React from 'react';
 import HotItemsSwiper from './HotItemsSwiper';
 import { ShoppingBag } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const GwiyeomMall = ({ mallItems, onProductClick }) => {
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
     // HOT 상품 데이터 필터링 하거나 따로 관리 (지금은 모든 아이템을 HOT으로 표시하거나 샘플링)
     const hotItems = mallItems.filter(item => item.tag === 'BEST' || item.tag === 'NEW');
 
-    const handleClick = (id, e) => {
-        e.stopPropagation();
+    const handleCardClick = (id) => {
         if (onProductClick) {
             onProductClick(id);
-        } else {
-            alert('수당이 부족해요! ✨');
         }
+    };
+
+    const handlePurchaseClick = (id, e) => {
+        e.stopPropagation();
+        if (!user) {
+            alert('로그인이 필요합니다. 🐧');
+            return;
+        }
+        navigate(`/purchase/${id}`);
     };
 
     return (
@@ -70,7 +81,7 @@ const GwiyeomMall = ({ mallItems, onProductClick }) => {
                 {mallItems.map((item, index) => (
                     <div
                         key={item.id}
-                        onClick={(e) => handleClick(item.id, e)}
+                        onClick={() => handleCardClick(item.id)}
                         style={{
                             background: 'var(--color-surface-light)',
                             borderRadius: '24px',
@@ -120,6 +131,8 @@ const GwiyeomMall = ({ mallItems, onProductClick }) => {
                             <img
                                 src={`/assets/${item.image}`}
                                 alt={item.name}
+                                loading="lazy"
+                                decoding="async"
                                 style={{
                                     position: 'absolute',
                                     top: 0,
@@ -159,7 +172,7 @@ const GwiyeomMall = ({ mallItems, onProductClick }) => {
                                     color: 'var(--color-primary)'
                                 }}>{item.price}</span>
                                 <button
-                                    onClick={(e) => handleClick(item.id, e)}
+                                    onClick={(e) => handlePurchaseClick(item.id, e)}
                                     style={{
                                         background: 'var(--color-text)',
                                         color: 'var(--color-surface)',
@@ -193,7 +206,7 @@ const GwiyeomMall = ({ mallItems, onProductClick }) => {
                 }}>
                     <div style={{ fontSize: '2.2rem', marginBottom: '16px' }}>✨</div>
                     <h4 style={{ fontSize: '1.3rem', fontWeight: '700', marginBottom: '12px' }}>더 많은 굿즈가 준비 중이에요!</h4>
-                    <p style={{ color: 'var(--color-text-muted)' }}>펭뚜의 귀여운 굿즈들을 곧 만나보실 수 있습니다. 기대해 주세요! 🐧</p>
+                    <p style={{ color: 'var(--color-text-muted)' }}>귀염부서의 귀여운 굿즈들을 곧 만나보실 수 있습니다. 기대해 주세요! 🐧</p>
                 </div>
             </div>
         </div>

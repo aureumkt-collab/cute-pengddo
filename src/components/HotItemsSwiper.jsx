@@ -95,6 +95,8 @@ const HotItemsSwiper = ({ items, onProductClick }) => {
                                 <img
                                     src={`/assets/${item.image}`}
                                     alt={item.name}
+                                    loading="lazy"
+                                    decoding="async"
                                     style={{
                                         position: 'absolute',
                                         top: 0,
