@@ -124,6 +124,7 @@ const Admin = () => {
                         { id: 'gallery', label: '갤러리' },
                         { id: 'mall', label: '쇼핑몰' },
                         { id: 'tracks', label: '곡 등록' },
+                        { id: 'notices', label: '공지사항' },
                         { id: 'applicants', label: '지원자 확인' }
                     ].map(tab => (
                         <button
@@ -158,6 +159,7 @@ const Admin = () => {
                     {activeTab === 'gallery' && <GalleryManager />}
                     {activeTab === 'mall' && <MallManager />}
                     {activeTab === 'tracks' && <TracksManager />}
+                    {activeTab === 'notices' && <NoticeManager />}
                     {activeTab === 'applicants' && <ApplicantsList />}
                 </div>
             </div>
@@ -405,6 +407,151 @@ const TracksManager = () => {
                             <td>{track.title}</td>
                             <td>{track.artist}</td>
                             <td><button onClick={() => handleDelete(track.id)} style={adminDeleteButtonStyle}>삭제</button></td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+// 공지사항 관리 컴포넌트
+const NoticeManager = () => {
+    const [notices, setNotices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [formData, setFormData] = useState({ content: '', date: '', author: '' });
+    const [editingId, setEditingId] = useState(null);
+
+    const fetchNotices = async () => {
+        const { data, error } = await supabase.from('notices').select('*').order('created_at', { ascending: false });
+        if (error) console.error(error);
+        else setNotices(data || []);
+        setLoading(false);
+    };
+
+    useEffect(() => { fetchNotices(); }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const dataToSave = {
+            content: formData.content,
+            date: formData.date,
+            author: formData.author
+        };
+
+        // 수정 모드일 경우 id 포함
+        if (editingId) {
+            dataToSave.id = editingId;
+        }
+
+        try {
+            const { error } = await supabase
+                .from('notices')
+                .upsert(dataToSave);
+
+            if (error) {
+                alert('저장 실패: ' + error.message);
+                console.error('Save error:', error);
+            } else {
+                alert(editingId ? '수정되었습니다.' : '등록되었습니다.');
+                setEditingId(null);
+                setFormData({ content: '', date: '', author: '' });
+                fetchNotices();
+            }
+        } catch (err) {
+            alert('오류가 발생했습니다: ' + err.message);
+        }
+    };
+
+    const handleEdit = (notice) => {
+        setEditingId(notice.id);
+        setFormData({
+            content: notice.content,
+            date: notice.date,
+            author: notice.author
+        });
+        // Scroll to form
+        window.scrollTo({ top: 100, behavior: 'smooth' });
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setFormData({ content: '', date: '', author: '' });
+    };
+
+    const handleDelete = async (id) => {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+        await supabase.from('notices').delete().eq('id', id);
+        fetchNotices();
+    };
+
+    if (loading) return <div>Loading...</div>;
+
+    return (
+        <div>
+            <h3 style={{ marginBottom: '20px' }}>{editingId ? '공지사항 수정' : '공지사항 관리'}</h3>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '30px', maxWidth: '600px' }}>
+                <textarea
+                    placeholder="공지 내용"
+                    value={formData.content}
+                    onChange={e => setFormData({ ...formData, content: e.target.value })}
+                    required
+                    style={{ ...adminInputStyle, minHeight: '100px' }}
+                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <input
+                        placeholder="일자 (ex: 2024.12.24)"
+                        value={formData.date}
+                        onChange={e => setFormData({ ...formData, date: e.target.value })}
+                        required
+                        style={adminInputStyle}
+                    />
+                    <input
+                        placeholder="작성자"
+                        value={formData.author}
+                        onChange={e => setFormData({ ...formData, author: e.target.value })}
+                        required
+                        style={adminInputStyle}
+                    />
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button type="submit" style={{ ...adminAddButtonStyle, flex: 1 }}>
+                        {editingId ? '수정 완료' : '공지사항 등록'}
+                    </button>
+                    {editingId && (
+                        <button type="button" onClick={cancelEdit} style={{
+                            ...adminDeleteButtonStyle,
+                            background: 'var(--color-surface)',
+                            color: 'var(--color-text)',
+                            borderColor: 'var(--color-border)',
+                            padding: '10px 20px',
+                            fontSize: '1rem'
+                        }}>
+                            취소
+                        </button>
+                    )}
+                </div>
+            </form>
+            <table style={adminTableStyle}>
+                <thead>
+                    <tr><th>일자</th><th>내용</th><th>작성자</th><th>관리</th></tr>
+                </thead>
+                <tbody>
+                    {notices.map(notice => (
+                        <tr key={notice.id}>
+                            <td style={{ whiteSpace: 'nowrap', padding: '12px 8px' }}>{notice.date}</td>
+                            <td style={{ padding: '12px 8px' }}>{notice.content}</td>
+                            <td style={{ whiteSpace: 'nowrap', padding: '12px 8px' }}>{notice.author}</td>
+                            <td style={{ padding: '12px 8px', display: 'flex', gap: '5px' }}>
+                                <button onClick={() => handleEdit(notice)} style={{
+                                    ...adminDeleteButtonStyle,
+                                    background: 'rgba(0, 123, 255, 0.1)',
+                                    color: '#007bff',
+                                    borderColor: '#007bff'
+                                }}>수정</button>
+                                <button onClick={() => handleDelete(notice.id)} style={adminDeleteButtonStyle}>삭제</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

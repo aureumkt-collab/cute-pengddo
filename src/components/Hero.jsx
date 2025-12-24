@@ -4,6 +4,9 @@ import SnowParticles from './SnowParticles';
 import ChristmasTree from './ChristmasTree';
 import assets from '../assets.json';
 import MusicPlayer from './MusicPlayer';
+import { supabase } from '../supabaseClient';
+import { Bell, Calendar, User } from 'lucide-react';
+import NoticeModal from './NoticeModal';
 
 const Hero = ({ onApplyClick }) => {
     // 현재 이미지 인덱스
@@ -83,6 +86,23 @@ const Hero = ({ onApplyClick }) => {
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const [notices, setNotices] = useState([]);
+    const [selectedNotice, setSelectedNotice] = useState(null);
+
+    useEffect(() => {
+        const fetchNotices = async () => {
+            const { data, error } = await supabase
+                .from('notices')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(2);
+            if (!error && data) {
+                setNotices(data);
+            }
+        };
+        fetchNotices();
     }, []);
 
     const currentImage = assets[currentIndex];
@@ -290,7 +310,94 @@ const Hero = ({ onApplyClick }) => {
                 >
                     입사지원
                 </button>
+
+                {/* 공지사항 목록 */}
+                {notices.length > 0 && (
+                    <div style={{
+                        marginTop: '48px',
+                        maxWidth: '500px',
+                        margin: '48px auto 0',
+                        textAlign: 'left'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            color: 'var(--color-primary)',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            marginBottom: '16px',
+                            paddingLeft: '12px'
+                        }}>
+                            <Bell size={16} />
+                            공지사항
+                        </div>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px'
+                        }}>
+                            {notices.map((notice) => (
+                                <div key={notice.id} style={{
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    borderRadius: '16px',
+                                    padding: '16px 20px',
+                                    backdropFilter: 'blur(10px)',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer'
+                                }}
+                                    onClick={() => setSelectedNotice(notice)}
+                                    onMouseOver={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                                        e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.3)';
+                                        e.currentTarget.style.transform = 'translateY(-2px)';
+                                    }}
+                                    onMouseOut={(e) => {
+                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                    }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: '6px'
+                                    }}>
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            color: 'var(--color-primary-light)',
+                                            fontWeight: '500'
+                                        }}>{notice.date}</span>
+                                        <span style={{
+                                            fontSize: '0.75rem',
+                                            color: 'rgba(255, 255, 255, 0.4)'
+                                        }}>{notice.author}</span>
+                                    </div>
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: '0.95rem',
+                                        color: 'rgba(255, 255, 255, 0.9)',
+                                        lineHeight: '1.6',
+                                        whiteSpace: 'pre-wrap'
+                                    }}>
+                                        {notice.content}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* 공지사항 모달 */}
+            {selectedNotice && (
+                <NoticeModal
+                    notice={selectedNotice}
+                    onClose={() => setSelectedNotice(null)}
+                />
+            )}
+
             {/* Mini Player */}
             <div style={{
                 position: 'fixed',
