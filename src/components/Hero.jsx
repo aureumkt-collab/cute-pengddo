@@ -109,7 +109,7 @@ const Hero = ({ onApplyClick }) => {
 
     return (
         <section style={{
-            padding: '120px 0 80px',
+            padding: window.innerWidth <= 768 ? '60px 0 40px' : '120px 0 80px',
             textAlign: 'center',
             background: 'var(--gradient-dark)',
             position: 'relative',
@@ -218,8 +218,8 @@ const Hero = ({ onApplyClick }) => {
                     {isChristmas ? (
                         /* 크리스마스 트리 */
                         <div style={{
-                            width: '180px',
-                            height: '180px',
+                            width: window.innerWidth <= 480 ? '140px' : '180px',
+                            height: window.innerWidth <= 480 ? '140px' : '180px',
                             marginTop: '-40px',
                             marginBottom: '60px',
                             marginLeft: 'auto',
@@ -236,8 +236,8 @@ const Hero = ({ onApplyClick }) => {
                         <div
                             className={`hero-image-container ${isAnimating ? 'hero-image-animating' : ''}`}
                             style={{
-                                width: '180px',
-                                height: '180px',
+                                width: window.innerWidth <= 480 ? '140px' : '180px',
+                                height: window.innerWidth <= 480 ? '140px' : '180px',
                                 margin: '0 auto 40px',
                                 borderRadius: '50%',
                                 overflow: 'hidden',
@@ -265,7 +265,7 @@ const Hero = ({ onApplyClick }) => {
                 </div>
 
                 <h1 style={{
-                    fontSize: '2.8rem',
+                    fontSize: window.innerWidth <= 480 ? '2rem' : '2.8rem',
                     fontWeight: '700',
                     marginBottom: '16px',
                     background: 'var(--gradient-primary)',
@@ -288,8 +288,8 @@ const Hero = ({ onApplyClick }) => {
 
                 <button
                     style={{
-                        padding: '14px 36px',
-                        fontSize: '1rem',
+                        padding: window.innerWidth <= 480 ? '12px 28px' : '14px 36px',
+                        fontSize: window.innerWidth <= 480 ? '0.95rem' : '1rem',
                         fontWeight: '500',
                         background: 'var(--gradient-primary)',
                         color: 'white',
@@ -314,9 +314,9 @@ const Hero = ({ onApplyClick }) => {
                 {/* 공지사항 목록 */}
                 {notices.length > 0 && (
                     <div style={{
-                        marginTop: '48px',
+                        marginTop: window.innerWidth <= 480 ? '32px' : '48px',
                         maxWidth: '500px',
-                        margin: '48px auto 0',
+                        margin: window.innerWidth <= 480 ? '32px auto 0' : '48px auto 0',
                         textAlign: 'left'
                     }}>
                         <div style={{

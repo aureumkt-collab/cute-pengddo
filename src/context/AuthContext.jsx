@@ -51,9 +51,17 @@ export const AuthProvider = ({ children }) => {
 
     // 로그아웃
     const signOut = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error('로그아웃 에러:', error.message);
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                console.error('로그아웃 에러:', error.message);
+            }
+        } catch (err) {
+            console.error('로그아웃 도중 예외 발생:', err);
+        } finally {
+            // 세션이나 네트워크 이슈와 상관없이 클라이언트 상태 명시적 초기화 및 홈으로 이동
+            setUser(null);
+            window.location.href = '/';
         }
     };
 

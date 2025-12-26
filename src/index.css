@@ -372,3 +372,49 @@ button {
   transform: scale(0.95) !important;
   transition: transform 0.1s !important;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  .section-padding {
+    padding: 40px 0;
+  }
+
+  .modal-close {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .modal-caption {
+    padding: 40px 16px 16px;
+  }
+
+  .modal-caption p {
+    font-size: 0.95rem;
+  }
+
+  .caption-icon {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+  }
+
+  .section-padding {
+    padding: 24px 0;
+  }
+
+  .modal-content {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+}

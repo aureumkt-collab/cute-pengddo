@@ -96,7 +96,7 @@ const Admin = () => {
             minHeight: '100vh',
             background: 'var(--color-background)',
             color: 'var(--color-text)',
-            padding: '40px 20px'
+            padding: '20px 15px' // 모바일 대응을 위해 패딩 축소
         }}>
             <div className="container">
                 <div style={{
@@ -105,7 +105,7 @@ const Admin = () => {
                     alignItems: 'center',
                     marginBottom: '40px'
                 }}>
-                    <h1 style={{ fontSize: '2rem', fontWeight: '800' }}>Admin Dashboard</h1>
+                    <h1 style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', fontWeight: '800' }}>Admin Dashboard</h1>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>{user.email}</span>
                         <button
@@ -125,10 +125,13 @@ const Admin = () => {
 
                 <div style={{
                     display: 'flex',
-                    gap: '12px',
+                    gap: '10px',
                     marginBottom: '32px',
                     overflowX: 'auto',
-                    paddingBottom: '8px'
+                    padding: '4px 4px 12px 4px', // 터치 영역 및 스크롤바 가시성
+                    msOverflowStyle: 'none',
+                    scrollbarWidth: 'none', // 스크롤바 숨기기 (깔끔함)
+                    WebkitOverflowScrolling: 'touch'
                 }}>
                     {[
                         { id: 'stats', label: '방문 통계' },
@@ -144,16 +147,18 @@ const Admin = () => {
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
                             style={{
-                                padding: '10px 20px',
+                                padding: '10px 18px',
                                 borderRadius: '30px',
                                 border: '1px solid',
                                 borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
-                                background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-                                color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                background: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-surface-light)',
+                                color: activeTab === tab.id ? 'white' : 'var(--color-text-secondary)',
+                                fontWeight: '700',
                                 cursor: 'pointer',
-                                fontWeight: activeTab === tab.id ? '700' : '500',
-                                transition: 'all 0.3s',
-                                whiteSpace: 'nowrap'
+                                whiteSpace: 'nowrap',
+                                fontSize: '0.9rem',
+                                transition: 'all 0.2s',
+                                boxShadow: activeTab === tab.id ? '0 4px 12px rgba(139, 92, 246, 0.3)' : 'none'
                             }}
                         >
                             {tab.label}
@@ -446,12 +451,13 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
                 background: 'var(--color-surface)',
                 width: '100%',
                 maxWidth: '800px',
-                maxHeight: '80vh',
+                maxHeight: '90vh', // 모바일에서 공간 최대한 활용
                 borderRadius: '24px',
                 border: '1px solid var(--color-border)',
                 display: 'flex',
                 flexDirection: 'column',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                margin: 'auto'
             }}>
                 {/* Header */}
                 <div style={{
@@ -498,10 +504,10 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
                 <div style={{
                     flex: 1,
                     overflowY: 'auto',
-                    padding: '24px',
+                    padding: 'clamp(12px, 4vw, 24px)', // 모바일에서 패딩 축소
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                    gap: '16px',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(clamp(100px, 30vw, 140px), 1fr))', // 모바일에서 카드 크기 조정
+                    gap: '12px',
                     minHeight: '200px'
                 }}>
                     {loading ? (
@@ -818,7 +824,7 @@ const TracksManager = () => {
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>* 제목 입력 시 URL용 슬러그가 자동 생성됩니다.</div>
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px', background: 'var(--color-surface)', padding: '20px', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '15px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>제목</label>
                         <input
@@ -872,12 +878,12 @@ const TracksManager = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'flex-start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px', alignItems: 'flex-start' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>커버 이미지 설정</label>
-                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', background: 'var(--color-background)', padding: '15px', borderRadius: '12px', border: '1px solid var(--color-border)' }}>
+                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', background: 'var(--color-background)', padding: '15px', borderRadius: '12px', border: '1px solid var(--color-border)', flexWrap: 'wrap' }}>
                             <div style={{
-                                width: '80px',
+                                width: 'min(100%, 80px)',
                                 height: '80px',
                                 borderRadius: '10px',
                                 border: '1px solid var(--color-border)',
@@ -886,7 +892,8 @@ const TracksManager = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                flexShrink: 0
+                                flexShrink: 0,
+                                margin: '0 auto' // 모바일에서 중앙 정렬 지원
                             }}>
                                 {formData.coverUrl ? (
                                     <img src={formData.coverUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Cover Preview" />
@@ -1018,7 +1025,9 @@ const TracksManager = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '16px',
-                padding: '0 4px'
+                padding: '0 4px',
+                flexWrap: 'wrap',
+                gap: '12px'
             }}>
                 <div style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--color-text)' }}>
                     등록된 곡 목록 <span style={{ color: 'var(--color-primary)', fontSize: '0.9rem' }}>({tracks.length})</span>
@@ -1050,7 +1059,7 @@ const TracksManager = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 350px), 1fr))', gap: '20px' }}>
                 {tracks.map(track => (
                     <div key={track.id} style={{
                         background: 'var(--color-surface)',
@@ -1062,19 +1071,19 @@ const TracksManager = () => {
                         transition: 'transform 0.2s, box-shadow 0.2s',
                         boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
                     }}>
-                        <div style={{ display: 'flex', padding: '24px', gap: '20px', alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', padding: '15px', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                                 <img
                                     src={track.cover_library?.public_url || '/default-album.png'}
                                     alt=""
-                                    style={{ width: '100px', height: '100px', borderRadius: '12px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                    style={{ width: '100px', height: '100px', borderRadius: '15px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 />
                                 <div style={{
                                     position: 'absolute',
-                                    top: '-8px',
-                                    right: '-8px',
-                                    fontSize: '0.7rem',
-                                    padding: '4px 8px',
+                                    top: '-5px',
+                                    right: '-5px',
+                                    fontSize: '0.65rem',
+                                    padding: '3px 7px',
                                     borderRadius: '8px',
                                     background: track.is_active ? 'var(--gradient-primary)' : 'var(--color-text-muted)',
                                     color: 'white',
@@ -1084,12 +1093,12 @@ const TracksManager = () => {
                                     {track.is_active ? 'ACTIVE' : 'INACTIVE'}
                                 </div>
                             </div>
-                            <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ flex: '1 1 200px', minWidth: 0, textAlign: 'center' }}>
                                 <div style={{
                                     fontWeight: '800',
-                                    fontSize: '1.25rem',
+                                    fontSize: '1.2rem',
                                     lineHeight: '1.2',
-                                    marginBottom: '4px',
+                                    marginBottom: '6px',
                                     color: 'var(--color-text)',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
@@ -1113,7 +1122,7 @@ const TracksManager = () => {
                                         WebkitLineClamp: '2',
                                         WebkitBoxOrient: 'vertical',
                                         overflow: 'hidden',
-                                        lineHeight: '1.5'
+                                        lineHeight: '1.4'
                                     }}>
                                         {track.description}
                                     </div>
@@ -1126,18 +1135,19 @@ const TracksManager = () => {
                         </div>
 
                         <div style={{
-                            padding: '16px 24px',
+                            padding: '16px 20px',
                             background: 'rgba(0,0,0,0.02)',
                             borderTop: '1px solid var(--color-border)',
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            gap: '10px'
+                            gap: '12px',
+                            flexWrap: 'wrap'
                         }}>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', fontWeight: '500' }}>
-                                URL: ?song={track.slug || track.id}
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: '600', wordBreak: 'break-all', flex: '1 1 100%', textAlign: 'center', order: 2 }}>
+                                🔗 ?song={track.slug || track.id}
                             </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', flex: '1 1 auto', order: 1 }}>
                                 <button onClick={() => handleDownload(track.audio, `${track.title}.mp3`)} style={{
                                     ...adminDeleteButtonStyle,
                                     background: 'rgba(34, 197, 94, 0.1)',
@@ -1145,9 +1155,10 @@ const TracksManager = () => {
                                     borderColor: '#22c55e',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '6px 12px',
-                                    fontWeight: '700'
+                                    gap: '4px',
+                                    padding: '6px 10px',
+                                    fontWeight: '700',
+                                    fontSize: '0.8rem'
                                 }}>
                                     <Download size={14} />
                                     다운
@@ -1157,13 +1168,15 @@ const TracksManager = () => {
                                     background: 'rgba(59, 130, 246, 0.1)',
                                     color: '#3b82f6',
                                     borderColor: '#3b82f6',
-                                    padding: '6px 12px',
-                                    fontWeight: '700'
+                                    padding: '6px 10px',
+                                    fontWeight: '700',
+                                    fontSize: '0.8rem'
                                 }}>수정</button>
                                 <button onClick={() => handleDelete(track)} style={{
                                     ...adminDeleteButtonStyle,
-                                    padding: '6px 12px',
-                                    fontWeight: '700'
+                                    padding: '6px 10px',
+                                    fontWeight: '700',
+                                    fontSize: '0.8rem'
                                 }}>삭제</button>
                             </div>
                         </div>
@@ -2304,13 +2317,14 @@ const ApplicantsList = () => {
 
 // Styles
 const adminInputStyle = {
-    padding: '10px 14px',
-    borderRadius: '8px',
+    padding: '12px 14px',
+    borderRadius: '10px',
     border: '1px solid var(--color-border)',
     background: 'var(--color-background)',
     color: 'var(--color-text)',
-    fontSize: '0.9rem',
-    outline: 'none'
+    fontSize: '1rem', // 모바일에서 focus 시 줌 방지
+    outline: 'none',
+    width: '100%'
 };
 
 const adminAddButtonStyle = {

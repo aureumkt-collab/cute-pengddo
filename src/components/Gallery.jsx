@@ -344,8 +344,8 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                     <div style={{
                         display: 'flex',
                         justifyContent: 'center',
-                        gap: '12px',
-                        marginBottom: '48px',
+                        gap: window.innerWidth <= 480 ? '8px' : '12px',
+                        marginBottom: window.innerWidth <= 768 ? '32px' : '48px',
                         animation: 'fadeIn 0.8s ease-out'
                     }}>
                         {[
@@ -356,7 +356,7 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id)}
                                 style={{
-                                    padding: '12px 32px',
+                                    padding: window.innerWidth <= 480 ? '10px 20px' : '12px 32px',
                                     borderRadius: '30px',
                                     border: '2px solid',
                                     borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
@@ -394,8 +394,8 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                     {activeTab === 'activity' ? (
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                            gap: '24px'
+                            gridTemplateColumns: window.innerWidth <= 480 ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))',
+                            gap: window.innerWidth <= 480 ? '16px' : '24px'
                         }}>
                             {assets.map((filename, index) => (
                                 <div

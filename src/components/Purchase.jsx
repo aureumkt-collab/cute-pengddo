@@ -107,8 +107,8 @@ const Purchase = () => {
                     maxWidth: '480px',
                     width: '100%',
                     background: 'white',
-                    padding: '60px 40px',
-                    borderRadius: '40px',
+                    padding: window.innerWidth <= 480 ? '40px 24px' : '60px 40px',
+                    borderRadius: window.innerWidth <= 480 ? '24px' : '40px',
                     textAlign: 'center',
                     boxShadow: '0 20px 40px rgba(0,0,0,0.05)',
                     animation: 'scaleUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
@@ -157,7 +157,7 @@ const Purchase = () => {
             minHeight: '100vh',
             background: 'var(--color-surface)',
             color: 'var(--color-text)',
-            padding: '40px 0 100px',
+            padding: window.innerWidth <= 768 ? '24px 0 60px' : '40px 0 100px',
             animation: 'fadeIn 0.6s ease-out'
         }}>
             <div className="container">
@@ -190,8 +190,8 @@ const Purchase = () => {
                     {/* Order Summary */}
                     <div style={{
                         background: 'white',
-                        padding: '32px',
-                        borderRadius: '32px',
+                        padding: window.innerWidth <= 480 ? '24px' : '32px',
+                        borderRadius: window.innerWidth <= 480 ? '24px' : '32px',
                         boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
                     }}>
                         <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px', color: '#1a1a1a' }}>
@@ -239,8 +239,8 @@ const Purchase = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div style={{
                             background: 'white',
-                            padding: '32px',
-                            borderRadius: '32px',
+                            padding: window.innerWidth <= 480 ? '24px' : '32px',
+                            borderRadius: window.innerWidth <= 480 ? '24px' : '32px',
                             boxShadow: '0 10px 30px rgba(0,0,0,0.03)'
                         }}>
                             <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem', fontWeight: '800', marginBottom: '24px', color: '#1a1a1a' }}>
