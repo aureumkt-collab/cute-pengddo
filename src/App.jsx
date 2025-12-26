@@ -112,19 +112,19 @@ function AppContent() {
   React.useEffect(() => {
     const handleScroll = () => {
       if (isHomePage) {
-        // 홈 페이지에서는 300px 이상 스크롤했을 때 미니 플레이어 표시
+        // 홈 페이지에서는 400px 이상 스크롤했을 때 미니 플레이어 표시
         setShowMini(window.scrollY > 400);
       } else {
-        // 다른 페이지에서는 항상 표시 (단, 지원서 폼 등 일부 제외)
-        const excludedPaths = ['/apply-form'];
-        setShowMini(!excludedPaths.includes(location.pathname));
+        // 다른 페이지에서는 항상 표시 (단, 지원서 폼, 상품상세, 구매하기 등 일부 제외)
+        const isExcluded = isApplyForm || isProductDetail || isPurchase;
+        setShowMini(!isExcluded);
       }
     };
 
     handleScroll(); // 초기 상태 체크
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname, isHomePage]);
+  }, [location.pathname, isHomePage, isApplyForm, isProductDetail, isPurchase]);
 
   return (
     <Layout hideHeader={isApplyForm || isProductDetail || isPurchase}>
