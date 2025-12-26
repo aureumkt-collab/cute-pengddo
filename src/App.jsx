@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import Admin from './components/Admin';
 import ProductDetail from './components/ProductDetail';
 import Purchase from './components/Purchase';
+import { supabase } from './supabaseClient';
 
 // 크리스마스 기간 확인 (12월 22일 ~ 12월 25일)
 const checkIsChristmas = () => {
@@ -75,6 +76,23 @@ function AppContent() {
   const isApplyModal = location.pathname === '/apply-modal';
   const isPurchase = location.pathname.startsWith('/purchase/');
 
+  // 방문 기록 (1일 1회 중복 제외 로직은 DB Function에서 처리)
+  useEffect(() => {
+    const recordVisit = async () => {
+      try {
+        const { error } = await supabase.rpc('log_visit', {
+          p_page_path: location.pathname
+        });
+        if (error) console.error('Visit log error:', error);
+      } catch (err) {
+        console.error('Failed to log visit:', err);
+      }
+    };
+
+    // 메인 접속이나 특정 페이지 진입 시 기록
+    recordVisit();
+  }, [location.pathname]); // 경로 이동시마다 체크 (DB 함수에서 24시간 중복 방지)
+
   return (
     <Layout hideHeader={isApplyForm || isProductDetail || isPurchase}>
       <Routes>
@@ -110,17 +128,14 @@ function AppContent() {
 }
 
 function App() {
-  const isAdminPath = window.location.pathname === '/admin';
-
-  if (isAdminPath) {
-    return <Admin />;
-  }
-
   return (
     <AuthProvider>
       <MusicProvider>
         <Router>
-          <AppContent />
+          <Routes>
+            <Route path="/admin" element={<Admin />} />
+            <Route path="*" element={<AppContent />} />
+          </Routes>
         </Router>
       </MusicProvider>
     </AuthProvider>

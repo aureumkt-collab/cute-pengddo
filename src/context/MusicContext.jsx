@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 const MusicContext = createContext();
 
 import { supabase } from '../supabaseClient';
-import { trackInfo as localTrackInfo } from '../data/tracks';
 
 export const MusicProvider = ({ children }) => {
     const [tracks, setTracks] = useState([]);
@@ -21,15 +20,36 @@ export const MusicProvider = ({ children }) => {
 
     useEffect(() => {
         const fetchTracks = async () => {
-            const { data, error } = await supabase.from('tracks').select('*').order('orders', { ascending: true });
-            if (!error && data && data.length > 0) {
-                setTracks(data);
-                preloadImages(data); // 앨범 커버 프리로드
-            } else {
-                setTracks(localTrackInfo);
-                preloadImages(localTrackInfo); // 앨범 커버 프리로드
+            try {
+                // image_library와 JOIN하여 최신 public_url 및 thumbnail_url을 가져옴
+                const { data, error } = await supabase
+                    .from('tracks')
+                    .select(`
+                        *,
+                        cover_library:image_library(public_url, thumbnail_url)
+                    `)
+                    .or('is_active.eq.true,is_active.is.null')
+                    .order('orders', { ascending: true });
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    // image_library에서 가져온 URL들을 할당
+                    const processedData = data.map(track => ({
+                        ...track,
+                        // 플레이어 커버는 썸네일을 우선 사용하고, 없으면 public_url 사용
+                        cover: track.cover_library?.thumbnail_url || track.cover_library?.public_url || '/default-album.png',
+                        original_cover: track.cover_library?.public_url || '/default-album.png'
+                    }));
+                    setTracks(processedData);
+                    preloadImages(processedData);
+                }
+            } catch (err) {
+                console.error("Error fetching tracks from Supabase:", err);
+                setTracks([]);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
         fetchTracks();
     }, []);
@@ -47,8 +67,17 @@ export const MusicProvider = ({ children }) => {
             const params = new URLSearchParams(window.location.search);
             const songId = params.get('song');
             if (songId) {
-                const index = tracks.findIndex(t => t.id === songId || t.track_id === songId);
-                if (index !== -1) setTrackIndex(index);
+                // slug 또는 id 중 하나라도 일치하는 곡 찾기 (유연한 리졸버 방식)
+                const index = tracks.findIndex(t =>
+                    String(t.slug) === String(songId) || String(t.id) === String(songId)
+                );
+                if (index !== -1) {
+                    setTrackIndex(index);
+                } else {
+                    // 찾을 수 없는 경우 랜덤 곡
+                    setTrackIndex(Math.floor(Math.random() * tracks.length));
+                    setIsPlaying(true);
+                }
             } else {
                 // song 파라미터가 없으면 랜덤 곡 선택 및 자동 재생
                 const randomIndex = Math.floor(Math.random() * tracks.length);

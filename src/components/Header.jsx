@@ -101,6 +101,33 @@ const Header = () => {
                                             }}
                                         />
                                     </div>
+                                    {user.email === 'ksmark1@gmail.com' && (
+                                        <button
+                                            onClick={() => navigate('/admin')}
+                                            style={{
+                                                fontSize: '0.85rem',
+                                                fontWeight: '600',
+                                                color: 'white',
+                                                background: 'var(--gradient-primary)',
+                                                border: 'none',
+                                                padding: '8px 16px',
+                                                borderRadius: '6px',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s ease',
+                                                boxShadow: '0 4px 10px rgba(139, 92, 246, 0.3)'
+                                            }}
+                                            onMouseOver={(e) => {
+                                                e.target.style.transform = 'translateY(-1px)';
+                                                e.target.style.boxShadow = '0 6px 15px rgba(139, 92, 246, 0.4)';
+                                            }}
+                                            onMouseOut={(e) => {
+                                                e.target.style.transform = 'translateY(0)';
+                                                e.target.style.boxShadow = '0 4px 10px rgba(139, 92, 246, 0.3)';
+                                            }}
+                                        >
+                                            관리
+                                        </button>
+                                    )}
                                     <button
                                         onClick={signOut}
                                         style={{

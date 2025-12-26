@@ -1,8 +1,76 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useMusic } from '../context/MusicContext';
-import { trackInfo } from '../data/tracks';
 import { SkipBack, SkipForward, Play, Pause, Shuffle, Share2, ListMusic, Music } from 'lucide-react';
 
+
+const SafeImage = ({ src, alt, style, ...props }) => {
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const imgRef = useRef(null);
+
+    useEffect(() => {
+        setIsLoaded(false);
+        setIsError(false);
+
+        // 캐시된 이미지의 경우 이미 로드 완료 상태일 수 있음
+        if (imgRef.current && imgRef.current.complete) {
+            setIsLoaded(true);
+        }
+    }, [src]);
+
+    const handleLoad = () => {
+        setIsLoaded(true);
+    };
+
+    const handleError = () => {
+        setIsError(true);
+        setIsLoaded(true); // 에러 상태여도 로딩 애니메이션은 멈춤
+    };
+
+    return (
+        <div style={{
+            width: style?.width || '100%',
+            height: style?.height || '100%',
+            position: 'relative',
+            overflow: 'hidden',
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: style?.borderRadius || '0'
+        }}>
+            <img
+                ref={imgRef}
+                src={src || '/default-album.png'}
+                alt={alt}
+                onLoad={handleLoad}
+                onError={handleError}
+                style={{
+                    ...style,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    opacity: (isLoaded && !isError) ? 1 : 0,
+                    transition: 'opacity 0.4s ease-in-out'
+                }}
+                {...props}
+            />
+            {(!isLoaded || isError) && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.1)',
+                    zIndex: 1
+                }}>
+                    <Music size={16} style={{ opacity: 0.2, color: 'white' }} />
+                </div>
+            )}
+        </div>
+    );
+};
 
 const MusicPlayer = ({ variant = 'fixed' }) => {
     const {
@@ -85,7 +153,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
 
 
     const handleShare = () => {
-        const shareUrl = `${window.location.origin}${window.location.pathname}?song=${currentInfo.id}`;
+        // slug가 있으면 그것을 사용, 없으면 id 사용 (대규모 시스템의 Slug 기반 공유 방식)
+        const songId = currentInfo.slug || currentInfo.id;
+        const shareUrl = `${window.location.origin}${window.location.pathname}?song=${songId}`;
         const shareData = {
             title: `귀염부서 펭뚜 - ${currentInfo.title}`,
             text: `펭뚜의 신곡 '${currentInfo.title}'을(를) 들어보세요!`,
@@ -137,7 +207,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         overflow: 'hidden',
                         flexShrink: 0
                     }}>
-                        <img src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <SafeImage src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{ width: '100%', height: '100%', borderRadius: '6px' }} />
                     </div>
                     <div style={{
                         color: 'white',
@@ -341,10 +411,9 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)',
                         flexShrink: 0
                     }}>
-                        <img src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{
+                        <SafeImage src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{
                             width: '100%',
                             height: '100%',
-                            objectFit: 'cover',
                             animation: isPlaying ? 'rotateArt 20s linear infinite' : 'none'
                         }} />
                     </div>
@@ -580,7 +649,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                     className="btn-hover-bg"
                                 >
                                     <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden' }}>
-                                        <img src={track.cover} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        <SafeImage src={track.cover} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', borderRadius: '8px' }} />
                                     </div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{
