@@ -456,8 +456,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                 position: 'relative',
                 zIndex: 10,
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                maxHeight: isPanelOpen ? '750px' : '260px',
-                overflow: 'hidden'
+                maxHeight: isPanelOpen ? '1200px' : '260px',
+                overflow: isPanelOpen ? 'visible' : 'hidden'
             }}
                 onMouseOver={(e) => {
                     if (!isPanelOpen) e.currentTarget.style.transform = 'translateY(-2px)';
@@ -709,6 +709,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     opacity: isPanelOpen ? 1 : 0,
                     transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                     overflowY: 'auto',
+                    overscrollBehaviorY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
                     marginTop: isPanelOpen ? '16px' : '0px',
                     paddingTop: isPanelOpen ? '16px' : '0px',
                     borderTop: isPanelOpen ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
@@ -943,7 +945,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             maxHeight: isPanelOpen ? '550px' : '88px',
             width: '220px',
-            overflow: 'hidden'
+            overflow: isPanelOpen ? 'visible' : 'hidden'
         }}>
             {/* Progress Bar (Floating) */}
             <div
@@ -1025,16 +1027,18 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
             </div>
 
             {/* Integrated Lyrics & Playlist Part (Floating) */}
-            <div style={{
+            <div className="integrated-container-fixed" style={{
                 maxHeight: isPanelOpen ? '450px' : '0px',
                 opacity: isPanelOpen ? 1 : 0,
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 overflowY: 'auto',
+                overscrollBehaviorY: 'auto',
+                WebkitOverflowScrolling: 'touch',
                 marginTop: isPanelOpen ? '8px' : '0px',
                 paddingTop: isPanelOpen ? '12px' : '0px',
                 borderTop: isPanelOpen ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
                 scrollbarWidth: 'none'
-            }} className="integrated-container-fixed">
+            }}>
                 <style>{`
                     .integrated-container-fixed::-webkit-scrollbar { display: none; }
                 `}</style>
@@ -1177,7 +1181,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

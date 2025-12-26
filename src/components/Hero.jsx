@@ -99,8 +99,7 @@ const Hero = ({ onApplyClick }) => {
             padding: window.innerWidth <= 768 ? '40px 0 40px' : '80px 0 80px',
             textAlign: 'center',
             background: 'var(--gradient-dark)',
-            position: 'relative',
-            overflow: 'hidden'
+            position: 'relative'
         }}>
             {/* 애니메이션 스타일 */}
             <style>{`
