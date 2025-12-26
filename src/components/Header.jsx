@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
@@ -8,6 +8,8 @@ const Header = () => {
     const [isVisible, setIsVisible] = React.useState(true);
     const lastScrollY = React.useRef(0);
     const scrollUpStartTime = React.useRef(null);
+
+    const location = useLocation();
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -99,7 +101,45 @@ const Header = () => {
                         listStyle: 'none',
                         alignItems: 'center'
                     }}>
-
+                        <li className="desktop-only">
+                            <Link to="/" style={{
+                                fontSize: '0.9rem',
+                                fontWeight: '700',
+                                color: location.pathname === '/' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                transition: 'all 0.3s',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                background: location.pathname === '/' ? 'rgba(139, 92, 246, 0.1)' : 'transparent'
+                            }}>뮤직</Link>
+                        </li>
+                        <li className="desktop-only">
+                            <Link to="/activity" style={{
+                                fontSize: '0.9rem',
+                                fontWeight: '700',
+                                color: location.pathname === '/activity' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                transition: 'all 0.3s',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                background: location.pathname === '/activity' ? 'rgba(139, 92, 246, 0.1)' : 'transparent'
+                            }}>활동</Link>
+                        </li>
+                        <li className="desktop-only">
+                            <Link to="/mall" style={{
+                                fontSize: '0.9rem',
+                                fontWeight: '700',
+                                color: location.pathname === '/mall' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                                transition: 'all 0.3s',
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                background: location.pathname === '/mall' ? 'rgba(139, 92, 246, 0.1)' : 'transparent'
+                            }}>귀염몰</Link>
+                        </li>
+                        <li className="desktop-only" style={{
+                            width: '1px',
+                            height: '16px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            margin: '0 8px'
+                        }}></li>
                         <li>
                             {loading ? (
                                 <div style={{

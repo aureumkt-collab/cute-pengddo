@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../supabaseClient';
-import { RefreshCw, Upload, Music, Image as ImageIcon, Copy, Trash2, ExternalLink, Check, LogIn, X, Search, Edit2, Download, BarChart2, Users, Calendar, ArrowRight } from 'lucide-react';
+import { RefreshCw, Upload, Music, Image as ImageIcon, Copy, Trash2, ExternalLink, Check, LogIn, X, Search, Edit2, Download, BarChart2, Users, Calendar, ArrowRight, Play, Pause } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useMusic } from '../context/MusicContext';
 
 
 const Admin = () => {
-    const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+    const { user, loading: authLoading, isAdmin, signInWithGoogle, signOut } = useAuth();
     const [activeTab, setActiveTab] = useState('stats');
-
-    // 이메일 기반 관리자 확인
-    const isAdmin = user?.email === 'ksmark1@gmail.com';
 
     if (authLoading) {
         return (
@@ -401,6 +399,7 @@ const MallManager = () => {
 const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshKey, setRefreshKey] = useState(Date.now());
     const [searchQuery, setSearchQuery] = useState('');
 
     const fetchImages = async () => {
@@ -412,7 +411,10 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
                 .order('created_at', { ascending: false });
 
             if (error) console.error('Error fetching images:', error);
-            else setImages(data || []);
+            else {
+                setImages(data || []);
+                setRefreshKey(Date.now());
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -539,7 +541,7 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
                             >
                                 <div style={{ aspectRatio: '1', overflow: 'hidden' }}>
                                     <img
-                                        src={img.thumbnail_url || img.public_url}
+                                        src={`${img.thumbnail_url || img.public_url}?t=${refreshKey}`}
                                         alt={img.display_name}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
@@ -579,10 +581,12 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
 };
 
 const TracksManager = () => {
+    const { refreshTracks } = useMusic();
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshKey, setRefreshKey] = useState(Date.now());
     const [uploading, setUploading] = useState(false);
-    const [formData, setFormData] = useState({ slug: '', title: '', artist: 'Pengddo', description: '', lyrics: '', coverUrl: '', cover_id: null, is_active: true });
+    const [formData, setFormData] = useState({ slug: '', title: '', artist: 'Pengddo', description: '', lyrics: '', coverUrl: '', thumbnailUrl: '', cover_id: null, is_active: true });
     const [audioFile, setAudioFile] = useState(null);
     const [coverFile, setCoverFile] = useState(null);
     const [editingId, setEditingId] = useState(null);
@@ -592,6 +596,53 @@ const TracksManager = () => {
     const [showImageSelector, setShowImageSelector] = useState(false);
     const [sortBy, setSortBy] = useState('created_at');
     const [sortAscending, setSortAscending] = useState(false);
+    const [previewTrackId, setPreviewTrackId] = useState(null);
+    const [audioBlobUrl, setAudioBlobUrl] = useState(null);
+    const previewRef = useRef(null);
+
+    // 새 오디오 파일 선택 시 Blob URL 생성 및 해제
+    useEffect(() => {
+        if (audioFile) {
+            const url = URL.createObjectURL(audioFile);
+            setAudioBlobUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } else {
+            setAudioBlobUrl(null);
+        }
+    }, [audioFile]);
+
+    // 미리듣기 토글 함수
+    const togglePreview = (trackId, audioUrl) => {
+        if (!audioUrl) return;
+
+        if (previewTrackId === trackId) {
+            if (previewRef.current) {
+                previewRef.current.pause();
+            }
+            setPreviewTrackId(null);
+        } else {
+            if (previewRef.current) {
+                previewRef.current.pause();
+            }
+            const audio = new Audio(audioUrl);
+            audio.play().catch(err => {
+                console.error("Preview play failed:", err);
+                alert("미리듣기 재생에 실패했습니다.");
+            });
+            previewRef.current = audio;
+            setPreviewTrackId(trackId);
+            audio.onended = () => setPreviewTrackId(null);
+        }
+    };
+
+    // 컴포넌트 언마운트 시 오디오 중단
+    useEffect(() => {
+        return () => {
+            if (previewRef.current) {
+                previewRef.current.pause();
+            }
+        };
+    }, []);
 
     const fetchTracks = async () => {
         const { data, error } = await supabase
@@ -602,7 +653,12 @@ const TracksManager = () => {
             `)
             .order(sortBy, { ascending: sortAscending });
         if (error) console.error(error);
-        else setTracks(data);
+        else {
+            setTracks(data);
+            setRefreshKey(Date.now());
+            // 글로벌 음악 플레이어 데이터도 함께 갱신
+            if (refreshTracks) refreshTracks();
+        }
         setLoading(false);
     };
 
@@ -779,6 +835,7 @@ const TracksManager = () => {
             description: track.description || '',
             lyrics: track.lyrics || '',
             coverUrl: track.cover_library?.public_url || '',
+            thumbnailUrl: track.cover_library?.thumbnail_url || '',
             cover_id: track.cover_id || null,
             is_active: track.is_active !== false // 기본값 true 처리
         });
@@ -793,7 +850,7 @@ const TracksManager = () => {
 
     const cancelEdit = () => {
         setEditingId(null);
-        setFormData({ slug: '', title: '', artist: 'Pengddo', description: '', lyrics: '', coverUrl: '', cover_id: null, is_active: true });
+        setFormData({ slug: '', title: '', artist: 'Pengddo', description: '', lyrics: '', coverUrl: '', thumbnailUrl: '', cover_id: null, is_active: true });
         setAudioFile(null);
         setCoverFile(null);
         setCurrentAudioUrl('');
@@ -858,17 +915,18 @@ const TracksManager = () => {
                             value={formData.title}
                             onChange={e => {
                                 const title = e.target.value;
-                                // 한글을 지원하는 슬러그 생성 로직
-                                // 1. 소문자 변환
-                                // 2. 공백을 하이픈(-)으로 변경
-                                // 3. 특수문자 제거 (한글, 영문, 숫자, 하이픈만 허용)
-                                // 4. 연속된 하이픈을 하나로 축소
-                                const autoSlug = title.toLowerCase()
-                                    .replace(/\s+/g, '-')
-                                    .replace(/[^a-z0-9가-힣-]/g, '')
-                                    .replace(/-+/g, '-')
-                                    .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
-                                setFormData({ ...formData, title, slug: autoSlug });
+                                // 신규 등록시에만 제목에 따라 슬러그 자동 생성
+                                if (!editingId) {
+                                    // 한글을 지원하는 슬러그 생성 로직
+                                    const autoSlug = title.toLowerCase()
+                                        .replace(/\s+/g, '-')
+                                        .replace(/[^a-z0-9가-힣-]/g, '')
+                                        .replace(/-+/g, '-')
+                                        .replace(/^-|-$/g, ''); // 앞뒤 하이픈 제거
+                                    setFormData({ ...formData, title, slug: autoSlug });
+                                } else {
+                                    setFormData({ ...formData, title });
+                                }
                             }}
                             required
                             style={adminInputStyle}
@@ -921,8 +979,8 @@ const TracksManager = () => {
                                 flexShrink: 0,
                                 margin: '0 auto' // 모바일에서 중앙 정렬 지원
                             }}>
-                                {formData.coverUrl ? (
-                                    <img src={formData.coverUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Cover Preview" />
+                                {formData.thumbnailUrl || formData.coverUrl ? (
+                                    <img src={`${formData.thumbnailUrl || formData.coverUrl}?t=${refreshKey}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="Cover Preview" />
                                 ) : (
                                     <ImageIcon size={24} style={{ color: 'var(--color-text-muted)' }} />
                                 )}
@@ -958,7 +1016,7 @@ const TracksManager = () => {
                                             if (file) {
                                                 const reader = new FileReader();
                                                 reader.onloadend = () => {
-                                                    setFormData(prev => ({ ...prev, coverUrl: reader.result }));
+                                                    setFormData(prev => ({ ...prev, coverUrl: reader.result, thumbnailUrl: '' }));
                                                 };
                                                 reader.readAsDataURL(file);
                                             }
@@ -974,15 +1032,48 @@ const TracksManager = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>MP3 파일 업로드 {editingId && '(생략 가능)'}</label>
-                        <div style={{ position: 'relative', marginTop: '5px' }}>
-                            <input
-                                type="file"
-                                accept="audio/mp3,audio/mpeg"
-                                onChange={e => setAudioFile(e.target.files[0])}
-                                required={!editingId}
-                                style={{ ...adminInputStyle, width: '100%', paddingLeft: '40px' }}
-                            />
-                            <Music size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <div style={{ position: 'relative', marginTop: '5px', flex: 1 }}>
+                                <input
+                                    type="file"
+                                    accept="audio/mp3,audio/mpeg"
+                                    onChange={e => {
+                                        const file = e.target.files[0];
+                                        setAudioFile(file);
+                                        if (previewTrackId === 'form') {
+                                            if (previewRef.current) previewRef.current.pause();
+                                            setPreviewTrackId(null);
+                                        }
+                                    }}
+                                    required={!editingId}
+                                    style={{ ...adminInputStyle, width: '100%', paddingLeft: '40px' }}
+                                />
+                                <Music size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                            </div>
+                            {(audioFile || currentAudioUrl) && (
+                                <button
+                                    type="button"
+                                    onClick={() => togglePreview('form', audioBlobUrl || currentAudioUrl)}
+                                    style={{
+                                        ...adminDeleteButtonStyle,
+                                        marginTop: '5px',
+                                        background: previewTrackId === 'form' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(168, 85, 247, 0.1)',
+                                        color: previewTrackId === 'form' ? '#ef4444' : '#a855f7',
+                                        borderColor: previewTrackId === 'form' ? '#ef4444' : '#a855f7',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '0 15px',
+                                        height: '42px',
+                                        fontWeight: '700',
+                                        fontSize: '0.85rem',
+                                        borderRadius: '10px'
+                                    }}
+                                >
+                                    {previewTrackId === 'form' ? <Pause size={16} /> : <Play size={16} />}
+                                    {previewTrackId === 'form' ? '정지' : '미리듣기'}
+                                </button>
+                            )}
                         </div>
                         {editingId && currentAudioUrl && <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', marginTop: '4px' }}>기존 파일 있음: {currentAudioUrl.split('/').pop()}</div>}
                     </div>
@@ -994,8 +1085,31 @@ const TracksManager = () => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>가사</label>
-                    <textarea placeholder="가사를 입력하세요" value={formData.lyrics} onChange={e => setFormData({ ...formData, lyrics: e.target.value })} style={{ ...adminInputStyle, minHeight: '120px' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: '600' }}>가사</label>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (confirm('가사에서 모든 괄호 [ ]와 그 안의 내용을 제거하시겠습니까?')) {
+                                    const cleanedLyrics = formData.lyrics.replace(/\[.*?\]/g, '').replace(/\n\s*\n/g, '\n\n').trim();
+                                    setFormData({ ...formData, lyrics: cleanedLyrics });
+                                }
+                            }}
+                            style={{
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                background: 'var(--color-background)',
+                                border: '1px solid var(--color-border)',
+                                fontSize: '0.7rem',
+                                color: 'var(--color-text-muted)',
+                                cursor: 'pointer',
+                                fontWeight: '600'
+                            }}
+                        >
+                            [괄호] 제거
+                        </button>
+                    </div>
+                    <textarea placeholder="가사를 입력하세요" value={formData.lyrics} onChange={e => setFormData({ ...formData, lyrics: e.target.value })} style={{ ...adminInputStyle, minHeight: '400px' }} />
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px' }}>
@@ -1100,7 +1214,7 @@ const TracksManager = () => {
                         <div style={{ display: 'flex', padding: '15px', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                                 <img
-                                    src={track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png'}
+                                    src={`${track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png'}?t=${refreshKey}`}
                                     alt=""
                                     style={{ width: '100px', height: '100px', borderRadius: '15px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 />
@@ -1174,6 +1288,25 @@ const TracksManager = () => {
                                 🔗 ?song={track.slug || track.id}
                             </div>
                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', flex: '1 1 auto', order: 1 }}>
+                                <button
+                                    type="button"
+                                    onClick={() => togglePreview(track.id, track.audio)}
+                                    style={{
+                                        ...adminDeleteButtonStyle,
+                                        background: previewTrackId === track.id ? 'rgba(239, 68, 68, 0.1)' : 'rgba(168, 85, 247, 0.1)',
+                                        color: previewTrackId === track.id ? '#ef4444' : '#a855f7',
+                                        borderColor: previewTrackId === track.id ? '#ef4444' : '#a855f7',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        padding: '6px 10px',
+                                        fontWeight: '700',
+                                        fontSize: '0.8rem'
+                                    }}
+                                >
+                                    {previewTrackId === track.id ? <Pause size={14} /> : <Play size={14} />}
+                                    {previewTrackId === track.id ? '정지' : '듣기'}
+                                </button>
                                 <button onClick={() => handleDownload(track.audio, `${track.title}.mp3`)} style={{
                                     ...adminDeleteButtonStyle,
                                     background: 'rgba(34, 197, 94, 0.1)',
@@ -1214,7 +1347,7 @@ const TracksManager = () => {
                 isOpen={showImageSelector}
                 onClose={() => setShowImageSelector(false)}
                 onSelect={(img) => {
-                    setFormData({ ...formData, coverUrl: img.public_url, cover_id: img.id });
+                    setFormData({ ...formData, coverUrl: img.public_url, thumbnailUrl: img.thumbnail_url, cover_id: img.id });
                     setShowImageSelector(false);
                 }}
             />
@@ -1474,6 +1607,7 @@ const NoticeManager = () => {
 };
 
 const ImageManager = () => {
+    const { refreshTracks } = useMusic();
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -1486,6 +1620,7 @@ const ImageManager = () => {
     const [replacingFileName, setReplacingFileName] = useState(null);
     const [renamingFileName, setRenamingFileName] = useState(null);
     const [tempNewName, setTempNewName] = useState('');
+    const [refreshKey, setRefreshKey] = useState(Date.now());
     const fileInputRef = React.useRef(null);
     const replaceInputRef = React.useRef(null);
 
@@ -1504,6 +1639,7 @@ const ImageManager = () => {
                 }
             } else {
                 setImages(data || []);
+                setRefreshKey(Date.now());
             }
         } catch (err) {
             console.error(err);
@@ -1651,6 +1787,7 @@ const ImageManager = () => {
             alert('이미지와 썸네일이 성공적으로 교체되었습니다.');
             setReplacingFileName(null);
             fetchImages();
+            if (refreshTracks) refreshTracks();
         } catch (error) {
             alert('교체 실패: ' + error.message);
         } finally {
@@ -1726,25 +1863,69 @@ const ImageManager = () => {
             return;
         }
 
+        const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
         setGeneratingAI(true);
         setAiPreviewUrl('');
 
         try {
-            const seed = Math.floor(Math.random() * 1000000);
-            // Pollinations AI: No API key needed for basic usage, good for demo/utility
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiPrompt)}?width=1024&height=1024&seed=${seed}&nologo=true`;
+            if (geminiKey) {
+                // Google Gemini Nano Banana Pro 연동
+                // v1beta 버전에서 이미지 생성을 지원하는 nano-banana-pro 모델 사용
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${geminiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: aiPrompt }] }],
+                        generationConfig: {
+                            responseModalities: ["IMAGE"]
+                        }
+                    })
+                });
 
-            // Image object to pre-load and verify
-            const img = new Image();
-            img.src = imageUrl;
-            img.onload = () => {
-                setAiPreviewUrl(imageUrl);
-                setGeneratingAI(false);
-            };
-            img.onerror = () => {
-                alert('이미지 생성 중 오류가 발생했습니다.');
-                setGeneratingAI(false);
-            };
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error.message || 'Gemini API Error');
+                }
+
+                const imagePart = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                if (imagePart) {
+                    const base64 = imagePart.inlineData.data;
+                    const mimeType = imagePart.inlineData.mimeType || 'image/png';
+                    const imageUrl = `data:${mimeType};base64,${base64}`;
+                    setAiPreviewUrl(imageUrl);
+                } else {
+                    throw new Error('이미지 생성을 모델이 지원하지 않거나 부적절한 프롬프트로 인해 거부되었습니다.');
+                }
+            } else {
+                // API 키가 없을 경우 안내 및 기존 Pollinations AI 사용 여부 확인
+                const msg = "Google Gemini API 키가 설정되지 않았습니다.\n\n" +
+                    "구글 원 프로 사용자시라면 Google AI Studio(aistudio.google.com)에서 API 키를 발급받아 " +
+                    ".env 파일에 VITE_GEMINI_API_KEY로 등록해주세요.\n\n" +
+                    "지금은 무료 Pollinations AI(Flux 모델)로 생성을 진행할까요?";
+
+                if (confirm(msg)) {
+                    const seed = Math.floor(Math.random() * 1000000);
+                    // Pollinations AI의 Flux 모델은 품질이 매우 뛰어납니다.
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(aiPrompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
+
+                    // 이미지 사전 로드 및 검증
+                    const img = new Image();
+                    img.src = imageUrl;
+                    img.onload = () => {
+                        setAiPreviewUrl(imageUrl);
+                        setGeneratingAI(false);
+                    };
+                    img.onerror = () => {
+                        alert('이미지 생성 중 오류가 발생했습니다.');
+                        setGeneratingAI(false);
+                    };
+                    return; // onload에서 loading 종료하므로 여기서 리턴
+                } else {
+                    setGeneratingAI(false);
+                }
+            }
         } catch (error) {
             console.error('AI Generation error:', error);
             alert('생성 실패: ' + error.message);
@@ -1851,7 +2032,6 @@ const ImageManager = () => {
 
             {/* AI 이미지 생성 섹션 */}
             <div style={{
-                background: 'var(--color-surface)',
                 padding: '24px',
                 borderRadius: '16px',
                 border: '1px solid var(--color-border)',
@@ -1860,7 +2040,7 @@ const ImageManager = () => {
                 boxShadow: '0 4px 20px rgba(139, 92, 246, 0.1)'
             }}>
                 <h4 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-primary)' }}>
-                    ✨ AI 이미지 생성 (Beta)
+                    ✨ AI 이미지 생성 (Powered by Google Gemini Nano Banana Pro)
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div style={{ display: 'flex', gap: '12px' }}>
@@ -2046,7 +2226,7 @@ const ImageManager = () => {
                         }} className="image-card">
                             <div style={{ height: '180px', overflow: 'hidden', background: '#000', position: 'relative' }}>
                                 <img
-                                    src={image.thumbnail_url || image.public_url}
+                                    src={`${image.thumbnail_url || image.public_url}?t=${refreshKey}`}
                                     alt={image.display_name}
                                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                 />

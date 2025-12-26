@@ -4,7 +4,7 @@ import assetsLocal from '../assets.json';
 import GwiyeomMall from './GwiyeomMall';
 import { supabase } from '../supabaseClient';
 import { localMallItems } from '../data/mallItems';
-import { Youtube, Instagram, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const EMOJIS = ['🐧', '💜', '✨', '💕', '🌟', '❄️', '💙', '🎀', '🦋', '🌸'];
 
@@ -340,56 +340,58 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                 position: 'relative'
             }}>
                 <div className="container">
-                    {/* Category Tabs */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: window.innerWidth <= 480 ? '8px' : '12px',
-                        marginBottom: window.innerWidth <= 768 ? '32px' : '48px',
-                        animation: 'fadeIn 0.8s ease-out'
-                    }}>
-                        {[
-                            { id: 'activity', label: '활동 기록', emoji: '📸' },
-                            { id: 'mall', label: '귀염몰', emoji: '🛍️' }
-                        ].map(tab => (
-                            <button
-                                key={tab.id}
-                                onClick={() => handleTabChange(tab.id)}
-                                style={{
-                                    padding: window.innerWidth <= 480 ? '10px 20px' : '12px 32px',
-                                    borderRadius: '30px',
-                                    border: '2px solid',
-                                    borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
-                                    background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
-                                    color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '700',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    boxShadow: activeTab === tab.id ? '0 10px 20px rgba(139, 92, 246, 0.15)' : 'none',
-                                    transform: activeTab === tab.id ? 'scale(1.05)' : 'scale(1)'
-                                }}
-                                onMouseOver={(e) => {
-                                    if (activeTab !== tab.id) {
-                                        e.currentTarget.style.borderColor = 'var(--color-primary-light)';
-                                        e.currentTarget.style.color = 'var(--color-primary-light)';
-                                    }
-                                }}
-                                onMouseOut={(e) => {
-                                    if (activeTab !== tab.id) {
-                                        e.currentTarget.style.borderColor = 'var(--color-border)';
-                                        e.currentTarget.style.color = 'var(--color-text-muted)';
-                                    }
-                                }}
-                            >
-                                <span>{tab.emoji}</span>
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
+                    {/* Category Tabs - Hidden as we use global tabs now */}
+                    {false && (
+                        <div className="main-tabs" style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: window.innerWidth <= 480 ? '8px' : '12px',
+                            marginBottom: window.innerWidth <= 768 ? '32px' : '48px',
+                            animation: 'fadeIn 0.8s ease-out'
+                        }}>
+                            {[
+                                { id: 'activity', label: '활동 기록', emoji: '📸' },
+                                { id: 'mall', label: '귀염몰', emoji: '🛍️' }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => handleTabChange(tab.id)}
+                                    style={{
+                                        padding: window.innerWidth <= 480 ? '10px 20px' : '12px 32px',
+                                        borderRadius: '30px',
+                                        border: '2px solid',
+                                        borderColor: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-border)',
+                                        background: activeTab === tab.id ? 'rgba(139, 92, 246, 0.1)' : 'transparent',
+                                        color: activeTab === tab.id ? 'var(--color-primary)' : 'var(--color-text-muted)',
+                                        fontSize: '1.1rem',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        boxShadow: activeTab === tab.id ? '0 10px 20px rgba(139, 92, 246, 0.15)' : 'none',
+                                        transform: activeTab === tab.id ? 'scale(1.05)' : 'scale(1)'
+                                    }}
+                                    onMouseOver={(e) => {
+                                        if (activeTab !== tab.id) {
+                                            e.currentTarget.style.borderColor = 'var(--color-primary-light)';
+                                            e.currentTarget.style.color = 'var(--color-primary-light)';
+                                        }
+                                    }}
+                                    onMouseOut={(e) => {
+                                        if (activeTab !== tab.id) {
+                                            e.currentTarget.style.borderColor = 'var(--color-border)';
+                                            e.currentTarget.style.color = 'var(--color-text-muted)';
+                                        }
+                                    }}
+                                >
+                                    <span>{tab.emoji}</span>
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
 
                     {activeTab === 'activity' ? (
                         <div style={{
@@ -485,103 +487,7 @@ const Gallery = ({ onProductClick, activeTabProp = 'activity' }) => {
                         <GwiyeomMall mallItems={mallItems} onProductClick={onProductClick} />
                     )}
 
-                    {/* YouTube Section */}
-                    {/* Social Section */}
-                    <div style={{
-                        marginTop: '64px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '16px',
-                        animation: 'slideUp 0.6s ease-out 0.5s both'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            justifyContent: 'center',
-                            gap: '16px'
-                        }}>
-                            {/* YouTube */}
-                            <a
-                                href="https://www.youtube.com/@pengddo"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '16px 32px',
-                                    background: 'linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '50px',
-                                    color: 'var(--color-text)',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    textDecoration: 'none',
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.1)'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)';
-                                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 0, 0, 0.15)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)';
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.1)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                }}
-                            >
-                                <Youtube size={24} color="#FF0000" />
-                                <span>YouTube 구경하기</span>
-                            </a>
 
-                            {/* Instagram */}
-                            <a
-                                href="https://www.instagram.com/pengddo/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    padding: '16px 32px',
-                                    background: 'linear-gradient(135deg, rgba(225, 48, 108, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '50px',
-                                    color: 'var(--color-text)',
-                                    fontSize: '1.1rem',
-                                    fontWeight: '600',
-                                    textDecoration: 'none',
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    boxShadow: '0 4px 20px rgba(139, 92, 246, 0.1)'
-                                }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(225, 48, 108, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)';
-                                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(225, 48, 108, 0.15)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(225, 48, 108, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)';
-                                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.1)';
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                }}
-                            >
-                                <Instagram size={24} color="#E1306C" />
-                                <span>Instagram 팔로우하기</span>
-                            </a>
-                        </div>
-                        <p style={{
-                            color: 'var(--color-text-muted)',
-                            fontSize: '0.9rem'
-                        }}>
-                            더 많은 펭뚜의 귀여운 모습을 보러 오세요! ✨
-                        </p>
-                    </div>
                 </div>
             </section>
 

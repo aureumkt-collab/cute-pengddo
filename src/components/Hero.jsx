@@ -5,7 +5,7 @@ import ChristmasTree from './ChristmasTree';
 import assets from '../assets.json';
 import MusicPlayer from './MusicPlayer';
 import { supabase } from '../supabaseClient';
-import { Bell, Calendar, User } from 'lucide-react';
+import { Bell, Calendar, User, Youtube, Instagram } from 'lucide-react';
 import NoticeModal from './NoticeModal';
 
 const Hero = ({ onApplyClick }) => {
@@ -63,8 +63,6 @@ const Hero = ({ onApplyClick }) => {
         return () => clearInterval(interval);
     }, [getNextIndex, createSparkles]);
 
-    const [showMini, setShowMini] = useState(false);
-    const playerRef = useRef(null);
     const [isChristmas, setIsChristmas] = useState(false);
 
     useEffect(() => {
@@ -75,17 +73,6 @@ const Hero = ({ onApplyClick }) => {
             return month === 12 && date >= 22 && date <= 25;
         };
         setIsChristmas(checkIsChristmas());
-    }, []);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (playerRef.current) {
-                const rect = playerRef.current.getBoundingClientRect();
-                setShowMini(rect.bottom < 0);
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     const [notices, setNotices] = useState([]);
@@ -260,7 +247,7 @@ const Hero = ({ onApplyClick }) => {
                     )}
                 </div>
 
-                <div ref={playerRef}>
+                <div>
                     <MusicPlayer variant="hero" />
                 </div>
 
@@ -330,7 +317,7 @@ const Hero = ({ onApplyClick }) => {
                             paddingLeft: '12px'
                         }}>
                             <Bell size={16} />
-                            공지사항
+                            귀염공지
                         </div>
                         <div style={{
                             display: 'flex',
@@ -388,6 +375,104 @@ const Hero = ({ onApplyClick }) => {
                         </div>
                     </div>
                 )}
+
+                {/* Social Section */}
+                <div style={{
+                    marginTop: '64px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '16px',
+                    animation: 'slideUp 0.6s ease-out 0.5s both'
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        gap: '16px'
+                    }}>
+                        {/* YouTube */}
+                        <a
+                            href="https://www.youtube.com/@pengddo"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '16px 32px',
+                                background: 'linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '50px',
+                                color: 'var(--color-text)',
+                                fontSize: '1.1rem',
+                                fontWeight: '600',
+                                textDecoration: 'none',
+                                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.1)'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)';
+                                e.currentTarget.style.boxShadow = '0 8px 30px rgba(255, 0, 0, 0.15)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)';
+                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.1)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                            }}
+                        >
+                            <Youtube size={24} color="#FF0000" />
+                            <span>YouTube 구경하기</span>
+                        </a>
+
+                        {/* Instagram */}
+                        <a
+                            href="https://www.instagram.com/pengddo/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '12px',
+                                padding: '16px 32px',
+                                background: 'linear-gradient(135deg, rgba(225, 48, 108, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderRadius: '50px',
+                                color: 'var(--color-text)',
+                                fontSize: '1.1rem',
+                                fontWeight: '600',
+                                textDecoration: 'none',
+                                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                boxShadow: '0 4px 20px rgba(139, 92, 246, 0.1)'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(225, 48, 108, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)';
+                                e.currentTarget.style.boxShadow = '0 8px 30px rgba(225, 48, 108, 0.15)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.background = 'linear-gradient(135deg, rgba(225, 48, 108, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)';
+                                e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.1)';
+                                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                            }}
+                        >
+                            <Instagram size={24} color="#E1306C" />
+                            <span>Instagram 팔로우하기</span>
+                        </a>
+                    </div>
+                    <p style={{
+                        color: 'var(--color-text-muted)',
+                        fontSize: '0.9rem'
+                    }}>
+                        더 많은 펭뚜의 귀여운 모습을 보러 오세요! ✨
+                    </p>
+                </div>
+
             </div>
 
             {/* 공지사항 모달 */}
@@ -397,21 +482,6 @@ const Hero = ({ onApplyClick }) => {
                     onClose={() => setSelectedNotice(null)}
                 />
             )}
-
-            {/* Mini Player */}
-            <div style={{
-                position: 'fixed',
-                bottom: '30px',
-                left: '50%',
-                zIndex: 2200,
-                opacity: showMini ? 1 : 0,
-                visibility: showMini ? 'visible' : 'hidden',
-                transform: `translateX(-50%) translateY(${showMini ? '0' : '100px'})`,
-                transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-                pointerEvents: showMini ? 'auto' : 'none'
-            }}>
-                <MusicPlayer variant="mini" />
-            </div>
         </section>
     );
 };

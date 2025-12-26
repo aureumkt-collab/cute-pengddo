@@ -3,10 +3,12 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 const MusicContext = createContext();
 
 import { supabase } from '../supabaseClient';
+import { useAuth } from './AuthContext';
 
 export const MusicProvider = ({ children }) => {
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { isAdmin, loading: authLoading } = useAuth();
 
     // 앨범 커버 이미지 프리로딩 함수
     const preloadImages = (trackList) => {
@@ -18,41 +20,57 @@ export const MusicProvider = ({ children }) => {
         });
     };
 
-    useEffect(() => {
-        const fetchTracks = async () => {
-            try {
-                // image_library와 JOIN하여 최신 public_url 및 thumbnail_url을 가져옴
-                const { data, error } = await supabase
-                    .from('tracks')
-                    .select(`
-                        *,
-                        cover_library:image_library(public_url, thumbnail_url)
-                    `)
-                    .or('is_active.eq.true,is_active.is.null')
-                    .order('orders', { ascending: true });
+    const [refreshKey, setRefreshKey] = useState(Date.now());
+    const fetchTracks = async () => {
+        // 인증 확인 중이면 대기
+        if (authLoading) return;
 
-                if (error) throw error;
+        try {
+            // image_library와 JOIN하여 최신 public_url 및 thumbnail_url을 가져옴
+            let query = supabase
+                .from('tracks')
+                .select(`
+                    *,
+                    cover_library:image_library(public_url, thumbnail_url)
+                `);
 
-                if (data && data.length > 0) {
-                    // image_library에서 가져온 URL들을 할당
-                    const processedData = data.map(track => ({
-                        ...track,
-                        // 플레이어 커버는 썸네일을 우선 사용하고, 없으면 public_url 혹은 기존 cover 컬럼 사용
-                        cover: track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png',
-                        original_cover: track.cover_library?.public_url || track.cover || '/default-album.png'
-                    }));
-                    setTracks(processedData);
-                    preloadImages(processedData);
-                }
-            } catch (err) {
-                console.error("Error fetching tracks from Supabase:", err);
-                setTracks([]);
-            } finally {
-                setLoading(false);
+            // 관리자가 아닐 때만 is_active 필터링 적용
+            if (!isAdmin) {
+                query = query.or('is_active.eq.true,is_active.is.null');
             }
-        };
+
+            const { data, error } = await query.order('orders', { ascending: true });
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                const now = Date.now();
+                setRefreshKey(now);
+                // image_library에서 가져온 URL들을 할당
+                const processedData = data.map(track => {
+                    const coverBase = track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png';
+                    const originalBase = track.cover_library?.public_url || track.cover || '/default-album.png';
+                    return {
+                        ...track,
+                        // 캐시 방지를 위해 타임스탬프 추가
+                        cover: coverBase.includes('?') ? `${coverBase}&t=${now}` : `${coverBase}?t=${now}`,
+                        original_cover: originalBase.includes('?') ? `${originalBase}&t=${now}` : `${originalBase}?t=${now}`
+                    };
+                });
+                setTracks(processedData);
+                preloadImages(processedData);
+            }
+        } catch (err) {
+            console.error("Error fetching tracks from Supabase:", err);
+            setTracks([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchTracks();
-    }, []);
+    }, [isAdmin, authLoading]);
 
     const [isPlaying, setIsPlaying] = useState(() => {
         const params = new URLSearchParams(window.location.search);
@@ -222,7 +240,10 @@ export const MusicProvider = ({ children }) => {
         currentTime,
         duration,
         seek,
-        loading
+        loading,
+        isAdmin,
+        refreshTracks: fetchTracks,
+        refreshKey
     };
 
     return (

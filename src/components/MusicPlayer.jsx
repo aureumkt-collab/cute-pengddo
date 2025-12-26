@@ -72,6 +72,33 @@ const SafeImage = ({ src, alt, style, ...props }) => {
     );
 };
 
+const renderTextWithLinks = (text) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+    return parts.map((part, i) => {
+        if (part.match(urlRegex)) {
+            return (
+                <a
+                    key={i}
+                    href={part}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                        color: '#F472B6',
+                        textDecoration: 'underline',
+                        wordBreak: 'break-all'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    {part}
+                </a>
+            );
+        }
+        return part;
+    });
+};
+
 const MusicPlayer = ({ variant = 'fixed' }) => {
     const {
         isPlaying,
@@ -88,11 +115,13 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         currentTime,
         duration,
         seek,
-        tracks
+        tracks,
+        isAdmin
     } = useMusic();
 
     const [isDragging, setIsDragging] = useState(false);
     const [activeTab, setActiveTab] = useState('playlist');
+    const [showFullCover, setShowFullCover] = useState(false);
     const progressBarRef = useRef(null);
 
     const formatTime = (time) => {
@@ -116,6 +145,10 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
         setIsDragging(true);
         handleSeek(e);
     };
+
+    useEffect(() => {
+        setShowFullCover(false);
+    }, [trackIndex, isPanelOpen]);
 
     useEffect(() => {
         if (!isDragging) return;
@@ -198,7 +231,8 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     gap: '10px',
                     paddingRight: '12px',
                     borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-                    marginRight: '4px'
+                    marginRight: '4px',
+                    position: 'relative'
                 }}>
                     <div style={{
                         width: '28px',
@@ -207,8 +241,61 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         overflow: 'hidden',
                         flexShrink: 0
                     }}>
-                        <SafeImage src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{ width: '100%', height: '100%', borderRadius: '6px' }} />
+                        <SafeImage
+                            src={currentInfo.cover}
+                            alt="cover"
+                            loading="eager"
+                            decoding="async"
+                            style={{ width: '100%', height: '100%', borderRadius: '6px', cursor: 'pointer' }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowFullCover(!showFullCover);
+                            }}
+                        />
                     </div>
+                    {/* Cover Image Tooltip/Bubble (Mini) */}
+                    {showFullCover && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowFullCover(false);
+                            }}
+                            style={{
+                                position: 'absolute',
+                                bottom: '40px',
+                                left: '0',
+                                zIndex: 1000,
+                                width: '180px',
+                                height: '180px',
+                                background: 'rgba(28, 28, 30, 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                padding: '8px',
+                                borderRadius: '16px',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                                animation: 'bubblePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <SafeImage
+                                src={currentInfo.original_cover || currentInfo.cover}
+                                alt="large cover"
+                                style={{ width: '100%', height: '100%', borderRadius: '10px', objectFit: 'cover' }}
+                            />
+                            {/* Tip */}
+                            <div style={{
+                                position: 'absolute',
+                                bottom: '-8px',
+                                left: '6px',
+                                width: '16px',
+                                height: '16px',
+                                background: 'rgba(28, 28, 30, 0.95)',
+                                transform: 'rotate(45deg)',
+                                borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                            }} />
+                        </div>
+                    )}
                     <div style={{
                         color: 'white',
                         fontSize: '13px',
@@ -401,7 +488,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                     <Share2 size={18} />
                 </button>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', marginBottom: '16px', position: 'relative' }}>
                     {/* Album Art */}
                     <div style={{
                         width: '60px',
@@ -411,12 +498,64 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         boxShadow: '0 8px 20px rgba(0, 0, 0, 0.4)',
                         flexShrink: 0
                     }}>
-                        <SafeImage src={currentInfo.cover} alt="cover" loading="eager" decoding="async" style={{
-                            width: '100%',
-                            height: '100%',
-                            animation: isPlaying ? 'rotateArt 20s linear infinite' : 'none'
-                        }} />
+                        <SafeImage
+                            src={currentInfo.cover}
+                            alt="cover"
+                            loading="eager"
+                            decoding="async"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                animation: isPlaying ? 'rotateArt 20s linear infinite' : 'none',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => setShowFullCover(!showFullCover)}
+                        />
                     </div>
+
+                    {/* Cover Image Tooltip/Bubble (Hero) */}
+                    {showFullCover && (
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowFullCover(false);
+                            }}
+                            style={{
+                                position: 'absolute',
+                                top: '70px',
+                                left: '0px',
+                                zIndex: 1000,
+                                width: '300px',
+                                height: '300px',
+                                background: 'rgba(28, 28, 30, 0.95)',
+                                backdropFilter: 'blur(20px)',
+                                padding: '10px',
+                                borderRadius: '20px',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                                animation: 'bubblePop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            <SafeImage
+                                src={currentInfo.original_cover || currentInfo.cover}
+                                alt="large cover"
+                                style={{ width: '100%', height: '100%', borderRadius: '14px', objectFit: 'cover' }}
+                            />
+                            {/* Tip */}
+                            <div style={{
+                                position: 'absolute',
+                                top: '-8px',
+                                left: '22px',
+                                width: '16px',
+                                height: '16px',
+                                background: 'rgba(28, 28, 30, 0.95)',
+                                transform: 'rotate(45deg)',
+                                borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+                                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+                            }} />
+                        </div>
+                    )}
 
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -661,6 +800,17 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                             textOverflow: 'ellipsis'
                                         }}>
                                             {track.title}
+                                            {isAdmin && track.is_active === false && (
+                                                <span style={{
+                                                    fontSize: '10px',
+                                                    background: 'rgba(255, 0, 0, 0.2)',
+                                                    color: '#ff4d4d',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px',
+                                                    marginLeft: '8px',
+                                                    verticalAlign: 'middle'
+                                                }}>비공개</span>
+                                            )}
                                         </div>
                                         <div style={{
                                             fontSize: '12px',
@@ -726,7 +876,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                     whiteSpace: 'pre-line'
                                 }}>
                                     <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em', marginBottom: '8px' }}>SONG INFO</div>
-                                    {currentInfo.description}
+                                    {renderTextWithLinks(currentInfo.description)}
                                 </div>
                             )}
 
@@ -751,8 +901,12 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                         from { transform: rotate(0deg); }
                         to { transform: rotate(360deg); }
     }
+    @keyframes bubblePop {
+        from { transform: scale(0.8) translateY(10px); opacity: 0; }
+        to { transform: scale(1) translateY(0); opacity: 1; }
+    }
     `}</style>
-            </div>
+            </div >
         );
     }
 
@@ -947,6 +1101,16 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                 textOverflow: 'ellipsis'
                             }}>
                                 {track.title}
+                                {isAdmin && track.is_active === false && (
+                                    <span style={{
+                                        fontSize: '9px',
+                                        background: 'rgba(255, 0, 0, 0.2)',
+                                        color: '#ff4d4d',
+                                        padding: '1px 4px',
+                                        borderRadius: '3px',
+                                        marginLeft: '6px'
+                                    }}>비공개</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -968,7 +1132,7 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                 border: '1px solid rgba(255, 255, 255, 0.05)'
                             }}>
                                 <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em', marginBottom: '6px' }}>SONG INFO</div>
-                                {currentInfo.description}
+                                <div style={{ whiteSpace: 'pre-line' }}>{renderTextWithLinks(currentInfo.description)}</div>
                             </div>
                         )}
                         {currentInfo.lyrics && currentInfo.lyrics.split('\n').map((line, i) => (

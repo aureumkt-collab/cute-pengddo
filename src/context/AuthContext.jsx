@@ -68,6 +68,7 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         loading,
+        isAdmin: user?.email === 'ksmark1@gmail.com',
         signInWithGoogle,
         signOut
     };
