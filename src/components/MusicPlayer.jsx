@@ -875,6 +875,21 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                     border: '1px solid rgba(255, 255, 255, 0.05)',
                                     whiteSpace: 'pre-line'
                                 }}>
+                                    <div style={{
+                                        width: '120px',
+                                        height: '120px',
+                                        margin: '0 auto 16px',
+                                        borderRadius: '12px',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                                    }}>
+                                        <SafeImage
+                                            src={currentInfo.cover}
+                                            alt="cover"
+                                            style={{ width: '100%', height: '100%', cursor: 'pointer' }}
+                                            onClick={() => setShowFullCover(!showFullCover)}
+                                        />
+                                    </div>
                                     <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '11px', letterSpacing: '0.05em', marginBottom: '8px' }}>SONG INFO</div>
                                     {renderTextWithLinks(currentInfo.description)}
                                 </div>
@@ -1131,6 +1146,21 @@ const MusicPlayer = ({ variant = 'fixed' }) => {
                                 lineHeight: '1.5',
                                 border: '1px solid rgba(255, 255, 255, 0.05)'
                             }}>
+                                <div style={{
+                                    width: '80px',
+                                    height: '80px',
+                                    margin: '0 auto 12px',
+                                    borderRadius: '10px',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+                                }}>
+                                    <SafeImage
+                                        src={currentInfo.cover}
+                                        alt="cover"
+                                        style={{ width: '100%', height: '100%', cursor: 'pointer' }}
+                                        onClick={() => setShowFullCover(!showFullCover)}
+                                    />
+                                </div>
                                 <div style={{ color: '#F472B6', fontWeight: 'bold', fontSize: '10px', letterSpacing: '0.05em', marginBottom: '6px' }}>SONG INFO</div>
                                 <div style={{ whiteSpace: 'pre-line' }}>{renderTextWithLinks(currentInfo.description)}</div>
                             </div>
