@@ -109,7 +109,7 @@ const Hero = ({ onApplyClick }) => {
 
     return (
         <section style={{
-            padding: window.innerWidth <= 768 ? '60px 0 40px' : '120px 0 80px',
+            padding: window.innerWidth <= 768 ? '40px 0 40px' : '80px 0 80px',
             textAlign: 'center',
             background: 'var(--gradient-dark)',
             position: 'relative',

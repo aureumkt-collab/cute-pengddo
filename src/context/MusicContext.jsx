@@ -37,9 +37,9 @@ export const MusicProvider = ({ children }) => {
                     // image_library에서 가져온 URL들을 할당
                     const processedData = data.map(track => ({
                         ...track,
-                        // 플레이어 커버는 썸네일을 우선 사용하고, 없으면 public_url 사용
-                        cover: track.cover_library?.thumbnail_url || track.cover_library?.public_url || '/default-album.png',
-                        original_cover: track.cover_library?.public_url || '/default-album.png'
+                        // 플레이어 커버는 썸네일을 우선 사용하고, 없으면 public_url 혹은 기존 cover 컬럼 사용
+                        cover: track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png',
+                        original_cover: track.cover_library?.public_url || track.cover || '/default-album.png'
                     }));
                     setTracks(processedData);
                     preloadImages(processedData);

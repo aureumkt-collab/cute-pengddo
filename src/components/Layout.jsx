@@ -10,7 +10,10 @@ const Layout = ({ children, hideHeader = false }) => {
             minHeight: '100vh'
         }}>
             {!hideHeader && <Header />}
-            <main style={{ flex: 1 }}>
+            <main style={{
+                flex: 1,
+                paddingTop: hideHeader ? 0 : '72px'
+            }}>
                 {children}
             </main>
             <Footer />

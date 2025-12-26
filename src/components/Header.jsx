@@ -5,16 +5,51 @@ import { useAuth } from '../context/AuthContext';
 const Header = () => {
     const { user, loading, signInWithGoogle, signOut } = useAuth();
     const navigate = useNavigate();
+    const [isVisible, setIsVisible] = React.useState(true);
+    const lastScrollY = React.useRef(0);
+    const scrollUpStartTime = React.useRef(null);
+
+    React.useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // At the very top, always show
+            if (currentScrollY <= 50) {
+                setIsVisible(true);
+                scrollUpStartTime.current = null;
+            } else if (currentScrollY > lastScrollY.current) {
+                // Scrolling down - hide
+                setIsVisible(false);
+                scrollUpStartTime.current = null;
+            } else {
+                // Scrolling up
+                if (scrollUpStartTime.current === null) {
+                    scrollUpStartTime.current = Date.now();
+                } else if (Date.now() - scrollUpStartTime.current > 300) {
+                    // Show only if scrolling up for more than 300ms
+                    setIsVisible(true);
+                }
+            }
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
         <header style={{
             padding: '16px 0',
             background: 'rgba(15, 15, 26, 0.85)',
             backdropFilter: 'blur(20px)',
-            position: 'sticky',
+            position: 'fixed', // Changed to fixed to ensure it can stay on top when visible
             top: 0,
+            left: 0,
+            right: 0,
             zIndex: 100,
-            borderBottom: '1px solid var(--color-border)'
+            borderBottom: '1px solid var(--color-border)',
+            transform: isVisible ? 'translateY(0)' : 'translateY(-100%)',
+            transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         }}>
             <div className="container" style={{
                 display: 'flex',

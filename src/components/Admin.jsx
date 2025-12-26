@@ -539,7 +539,7 @@ const ImageSelectorModal = ({ isOpen, onClose, onSelect }) => {
                             >
                                 <div style={{ aspectRatio: '1', overflow: 'hidden' }}>
                                     <img
-                                        src={img.public_url}
+                                        src={img.thumbnail_url || img.public_url}
                                         alt={img.display_name}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
@@ -598,7 +598,7 @@ const TracksManager = () => {
             .from('tracks')
             .select(`
                 *,
-                cover_library:image_library(public_url)
+                cover_library:image_library(public_url, thumbnail_url)
             `)
             .order(sortBy, { ascending: sortAscending });
         if (error) console.error(error);
@@ -684,28 +684,54 @@ const TracksManager = () => {
 
             // 2. 커버 이미지 처리
             if (coverFile) {
-                // 직접 파일을 올린 경우: Storage 업로드 + image_library 등록
-                const uploadedUrl = await handleUpload(coverFile, 'covers');
+                // 직접 파일을 올린 경우: Storage 업로드 + image_library 등록 + 썸네일 생성
+                const fileExt = coverFile.name.split('.').pop() || 'jpg';
+                const timestamp = Date.now();
+                const randomStr = Math.random().toString(36).substring(2, 7);
+                const storageFileName = `${timestamp}-${randomStr}.${fileExt}`;
+                const thumbnailFileName = `thumb-${timestamp}-${randomStr}.jpg`;
 
-                // 이미지 라이브러리에 자동 등록
-                const originalFileName = coverFile.name;
-                const storagePath = uploadedUrl.split('/tracks/').pop().split('?')[0]; // path 추출
+                // 2-1. 원본 업로드
+                const { error: storageError } = await supabase.storage
+                    .from('images')
+                    .upload(storageFileName, coverFile, {
+                        contentType: coverFile.type,
+                        upsert: true
+                    });
+                if (storageError) throw storageError;
 
+                // 2-2. 썸네일 생성 및 업로드
+                const thumbnailBlob = await createThumbnail(coverFile);
+                const { error: thumbError } = await supabase.storage
+                    .from('images')
+                    .upload(thumbnailFileName, thumbnailBlob, {
+                        contentType: 'image/jpeg',
+                        upsert: true
+                    });
+                if (thumbError) throw thumbError;
+
+                // 2-3. Public URL 가져오기
+                const { data: { publicUrl } } = supabase.storage.from('images').getPublicUrl(storageFileName);
+                const { data: { publicUrl: thumbnailUrl } } = supabase.storage.from('images').getPublicUrl(thumbnailFileName);
+
+                // 2-4. 이미지 라이브러리에 등록
                 const { data: newImg, error: libError } = await supabase
                     .from('image_library')
                     .insert([{
-                        display_name: originalFileName,
-                        storage_path: `covers/${storagePath}`,
-                        public_url: uploadedUrl
+                        display_name: coverFile.name,
+                        storage_path: storageFileName,
+                        public_url: publicUrl,
+                        thumbnail_path: thumbnailFileName,
+                        thumbnail_url: thumbnailUrl
                     }])
                     .select()
                     .single();
 
                 if (!libError && newImg) {
                     coverId = newImg.id;
-                    coverUrl = newImg.public_url;
+                    coverUrl = publicUrl;
                 } else {
-                    coverUrl = uploadedUrl; // 라이브러리 등록 실패 시 URL이라도 유지
+                    coverUrl = publicUrl;
                 }
             } else if (formData.coverUrl) {
                 coverUrl = formData.coverUrl;
@@ -1074,7 +1100,7 @@ const TracksManager = () => {
                         <div style={{ display: 'flex', padding: '15px', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                             <div style={{ position: 'relative', flexShrink: 0 }}>
                                 <img
-                                    src={track.cover_library?.public_url || '/default-album.png'}
+                                    src={track.cover_library?.thumbnail_url || track.cover_library?.public_url || track.cover || '/default-album.png'}
                                     alt=""
                                     style={{ width: '100px', height: '100px', borderRadius: '15px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                 />
@@ -2020,7 +2046,7 @@ const ImageManager = () => {
                         }} className="image-card">
                             <div style={{ height: '180px', overflow: 'hidden', background: '#000', position: 'relative' }}>
                                 <img
-                                    src={image.public_url}
+                                    src={image.thumbnail_url || image.public_url}
                                     alt={image.display_name}
                                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                 />
